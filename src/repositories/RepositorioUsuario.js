@@ -20,6 +20,15 @@ module.exports = {
     return paraObjeto(rows[0]);
   },
 
+  async atualizarNome(id, nome) {
+    const { rows } = await db.query('UPDATE usuario SET nome = $1 WHERE id = $2 RETURNING *', [nome, id]);
+    return paraObjeto(rows[0]);
+  },
+
+  async atualizarSenha(id, senhaHash) {
+    await db.query('UPDATE usuario SET senha_hash = $1 WHERE id = $2', [senhaHash, id]);
+  },
+
   async salvar({ nome, email, senhaHash, tipo = 'MOTORISTA' }) {
     const { rows } = await db.query(
       `INSERT INTO usuario (nome, email, senha_hash, tipo)

@@ -30,6 +30,7 @@ module.exports = {
     const pontos = candidatos
       .map((p) => Object.assign(p, { distanciaKm: p.calcularDistancia(lat, lng) }))
       .filter((p) => p.distanciaKm <= raio)
+      .filter((p) => !filtros.status.length || filtros.status.includes(p.statusVigente()))
       .sort((a, b) => a.distanciaKm - b.distanciaKm);
 
     return res.json({

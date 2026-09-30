@@ -26,10 +26,6 @@ module.exports = {
       params.push(filtros.potenciaMin);
       cond.push(`potencia_kw >= $${params.length}`);
     }
-    if (filtros.status?.length) {
-      params.push(filtros.status);
-      cond.push(`status = ANY($${params.length}::text[])`);
-    }
 
     const { rows } = await db.query(`SELECT * FROM ponto_de_recarga WHERE ${cond.join(' AND ')}`, params);
     return rows.map((r) => new PontoDeRecarga(r));
@@ -46,6 +42,21 @@ module.exports = {
   async existePontoProximo({ latitude, longitude }, raioMetros = 50) {
     const candidatos = await this.buscarProximos({ latitude, longitude }, raioMetros / 1000);
     return candidatos.some((p) => p.calcularDistancia(latitude, longitude) * 1000 <= raioMetros);
+  },
+
+  async buscarPorMotorista(motoristaId) {
+    const { rows } = await db.query(
+      "SELECT * FROM ponto_de_recarga WHERE motorista_id = $1 AND status <> 'SUSPENSO' ORDER BY data_cadastro DESC",
+      [motoristaId],
+    );
+    return rows.map((r) => new PontoDeRecarga(r));
+  },
+
+  async atualizarStatus(ponto) {
+    await db.query(
+      'UPDATE ponto_de_recarga SET status = $1, status_atualizado_em = NOW() WHERE id = $2',
+      [ponto.status, ponto.id],
+    );
   },
 
   async salvar(ponto) {

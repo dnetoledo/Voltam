@@ -13,7 +13,7 @@ const CONECTORES = Object.freeze(['Tipo 1', 'Tipo 2', 'CCS Combo', 'CHAdeMO', 'G
 
 class PontoDeRecarga {
   constructor({ id, nome, endereco, latitude, longitude, tipos_conector, potencia_kw,
-    numero_vagas, horario_funcionamento, status, motorista_id, data_cadastro }) {
+    numero_vagas, horario_funcionamento, status, motorista_id, data_cadastro, status_atualizado_em }) {
     this.id = id;
     this.nome = nome;
     this.endereco = endereco || null;
@@ -26,6 +26,22 @@ class PontoDeRecarga {
     this.status = status || STATUS.NAO_VERIFICADO;
     this.motoristaId = motorista_id || null;
     this.dataCadastro = data_cadastro || null;
+    this.statusAtualizadoEm = status_atualizado_em ? new Date(status_atualizado_em) : null;
+  }
+
+  // Status válido agora: "disponível" ou "ocupado" informados por check-in expiram após 2 horas
+  statusVigente(agora = new Date()) {
+    const expira = [STATUS.DISPONIVEL, STATUS.OCUPADO].includes(this.status) && this.statusAtualizadoEm
+      && agora - this.statusAtualizadoEm > 2 * 3600 * 1000;
+    return expira ? STATUS.NAO_VERIFICADO : this.status;
+  }
+
+  // Information Expert: o próprio ponto atualiza seu status a partir de um check-in (UC04)
+  // Retorna true quando o ponto deve ser sinalizado para verificação (A1 – ponto com defeito)
+  atualizarStatus(checkIn) {
+    this.status = checkIn.statusInformado;
+    this.statusAtualizadoEm = checkIn.dataHora;
+    return this.status === STATUS.FORA_DE_SERVICO;
   }
 
   // Distância em km pela fórmula de Haversine
@@ -68,7 +84,8 @@ class PontoDeRecarga {
       potenciaKw: this.potenciaKw,
       numeroVagas: this.numeroVagas,
       horarioFuncionamento: this.horarioFuncionamento,
-      status: this.status,
+      status: this.statusVigente(),
+      statusAtualizadoEm: this.statusAtualizadoEm,
       dataCadastro: this.dataCadastro,
       ...(this.distanciaKm !== undefined && { distanciaKm: Math.round(this.distanciaKm * 100) / 100 }),
     };

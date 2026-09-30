@@ -9,7 +9,7 @@ process.env.JWT_SECRET = process.env.JWT_SECRET || 'segredo-de-teste';
 
 async function recriarBanco() {
   const db = require('../src/config/db');
-  await db.query('DROP TABLE IF EXISTS ponto_de_recarga, usuario CASCADE');
+  await db.query('DROP TABLE IF EXISTS favorito, check_in, ponto_de_recarga, usuario CASCADE');
   await db.query(fs.readFileSync(path.join(__dirname, '..', 'database', 'schema.sql'), 'utf8'));
   return db;
 }

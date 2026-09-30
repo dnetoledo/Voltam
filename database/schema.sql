@@ -34,3 +34,32 @@ CREATE TABLE IF NOT EXISTS ponto_de_recarga (
 );
 
 CREATE INDEX IF NOT EXISTS idx_ponto_localizacao ON ponto_de_recarga (latitude, longitude);
+
+-- ---------------------------------------------------------------------
+-- Iteração C1 (ampliação): check-in (UC04), recarga ativa e favoritos (RF09)
+-- ---------------------------------------------------------------------
+
+-- Momento em que o status do ponto foi informado por um check-in (validade de 2 horas)
+ALTER TABLE ponto_de_recarga ADD COLUMN IF NOT EXISTS status_atualizado_em TIMESTAMPTZ;
+
+CREATE TABLE IF NOT EXISTS check_in (
+  id                SERIAL PRIMARY KEY,
+  ponto_id          INTEGER     NOT NULL REFERENCES ponto_de_recarga(id) ON DELETE CASCADE,
+  motorista_id      INTEGER     NOT NULL REFERENCES usuario(id),
+  status_informado  VARCHAR(20) NOT NULL
+                    CHECK (status_informado IN ('DISPONIVEL', 'OCUPADO', 'FORA_DE_SERVICO')),
+  comentario        VARCHAR(280),
+  carregando        BOOLEAN     NOT NULL DEFAULT FALSE,   -- "recarga ativa" do motorista
+  data_hora         TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  validade          TIMESTAMPTZ NOT NULL DEFAULT (NOW() + INTERVAL '2 hours'),
+  encerrado_em      TIMESTAMPTZ
+);
+CREATE INDEX IF NOT EXISTS idx_checkin_ponto ON check_in (ponto_id, data_hora DESC);
+CREATE INDEX IF NOT EXISTS idx_checkin_motorista ON check_in (motorista_id, data_hora DESC);
+
+CREATE TABLE IF NOT EXISTS favorito (
+  motorista_id     INTEGER   NOT NULL REFERENCES usuario(id) ON DELETE CASCADE,
+  ponto_id         INTEGER   NOT NULL REFERENCES ponto_de_recarga(id) ON DELETE CASCADE,
+  data_adicionado  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  PRIMARY KEY (motorista_id, ponto_id)
+);
