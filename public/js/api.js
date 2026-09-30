@@ -80,3 +80,51 @@ function montarTopo() {
     area.innerHTML = `<a class="btn btn-secundario" href="login.html?voltar=${encodeURIComponent(location.pathname + location.search)}">Entrar</a>`;
   }
 }
+
+// ---------- App instalável (PWA) ----------
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+}
+
+const Instalacao = {
+  instalado() {
+    return window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+  },
+  ehIOS() {
+    return /iphone|ipad|ipod/i.test(navigator.userAgent)
+      || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  },
+  dispensado() { try { return localStorage.getItem('voltmap_instalar_dispensado') === '1'; } catch { return false; } },
+  dispensar() { try { localStorage.setItem('voltmap_instalar_dispensado', '1'); } catch { /* sem armazenamento */ } },
+};
+
+// Mostra o convite para instalar o VoltMap na tela de início (apenas na tela do mapa)
+function montarConviteInstalacao() {
+  const aviso = document.getElementById('instalar');
+  if (!aviso || Instalacao.instalado() || Instalacao.dispensado()) return;
+  const texto = aviso.querySelector('.instalar-texto');
+  const botao = aviso.querySelector('.instalar-botao');
+  aviso.querySelector('.instalar-fechar').onclick = () => { aviso.hidden = true; Instalacao.dispensar(); };
+
+  if (Instalacao.ehIOS()) {
+    // iPhone/iPad: a instalação é feita pelo menu Compartilhar do Safari
+    texto.innerHTML = 'Instale o VoltMap no seu iPhone: toque em <strong>Compartilhar</strong> '
+      + '<span aria-hidden="true">⬆︎</span> e depois em <strong>Adicionar à Tela de Início</strong>.';
+    botao.hidden = true;
+    aviso.hidden = false;
+    return;
+  }
+  // Android e navegadores de computador compatíveis: botão "Instalar"
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    texto.textContent = 'Instale o VoltMap e acesse direto da tela de início, como um app.';
+    botao.hidden = false;
+    aviso.hidden = false;
+    botao.onclick = async () => {
+      e.prompt();
+      await e.userChoice;
+      aviso.hidden = true;
+    };
+  });
+  window.addEventListener('appinstalled', () => { aviso.hidden = true; });
+}

@@ -141,4 +141,18 @@ button, input, select { font: inherit; }
 .modal .acoes { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
 
 .marcador-ponto { border-radius: 50%; border: 3px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.4); }
-.oculto { display: none !important; }
+.oculto, [hidden] { display: none !important; }
+
+/* App instalável (PWA) */
+.instalar { display: flex; align-items: center; gap: 10px; padding: 10px 16px; background: var(--verde-claro);
+  border-bottom: 1px solid #bbf7d0; font-size: .88rem; color: #14532d; }
+.instalar[hidden] { display: none; }
+.instalar-icone img { width: 32px; height: 32px; border-radius: 8px; display: block; }
+.instalar-texto { flex: 1; }
+.instalar-botao { padding: 7px 14px; }
+.instalar-fechar { border: 0; background: none; color: #166534; font-size: 1rem; cursor: pointer; padding: 4px 6px; }
+
+/* Respeita o entalhe e a barra inferior do iPhone quando aberto como app */
+.topo { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
+.fab { bottom: max(20px, calc(env(safe-area-inset-bottom) + 12px)); }
+.pagina { padding-bottom: max(40px, env(safe-area-inset-bottom)); }

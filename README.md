@@ -15,13 +15,17 @@ Autora: Dayane Nascimento de Toledo · Professor: Tomaz Mikio Sasaki
 | RF05 | Ver detalhes de um ponto de recarga |
 | UC03 | Cadastrar novo ponto de recarga (status "não verificado" e alerta de possível duplicidade) |
 
+O VoltMap é uma **aplicação web instalável (PWA)**: funciona no navegador do computador e do celular e pode ser
+instalado na tela de início do smartphone (iPhone: Safari → Compartilhar → *Adicionar à Tela de Início*;
+Android: Chrome → *Instalar app*), abrindo em tela cheia como um aplicativo.
+
 Ficam para a iteração C2: check-in (UC04), avaliações, favoritos, denúncias, moderação (UC05), gestão de usuários e fotos dos pontos.
 
 ## Tecnologias
 
 - **Back-end:** Node.js 20+ e Express
 - **Banco de dados:** PostgreSQL
-- **Front-end:** HTML, CSS e JavaScript, com mapa Leaflet e dados do OpenStreetMap
+- **Front-end:** HTML, CSS e JavaScript, com mapa Leaflet e dados do OpenStreetMap; PWA (manifest + service worker)
 - **Hospedagem:** Render (aplicação) e Neon (banco de dados)
 
 ## Estrutura do projeto (relação com o Documento de Projeto)

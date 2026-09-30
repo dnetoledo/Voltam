@@ -11,6 +11,7 @@ const camadaPontos = L.layerGroup();
 const marcadores = new Map();
 
 montarTopo();
+montarConviteInstalacao();
 const mapa = L.map('mapa', { zoomControl: true }).setView([SAO_PAULO.lat, SAO_PAULO.lng], 12);
 camadaMapa(mapa);
 camadaPontos.addTo(mapa);
