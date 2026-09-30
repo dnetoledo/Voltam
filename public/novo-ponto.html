@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E⚡%3C/text%3E%3C/svg%3E">
+  <title>Novo ponto de recarga – VoltMap</title>
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+  <!-- TelaNovoPontoRecarga (UC03 – Cadastrar Novo Ponto de Recarga) -->
+  <header class="topo">
+    <a class="voltar" href="index.html" aria-label="Voltar ao mapa">←</a>
+    <strong>Novo Ponto de Recarga</strong>
+    <div class="topo-acoes" id="topo-acoes"></div>
+  </header>
+  <main class="pagina">
+    <div class="aviso" id="aviso" role="alert"></div>
+    <form id="form-ponto" novalidate>
+      <div class="campo">
+        <label for="busca-local">Localização</label>
+        <div class="busca" style="margin-bottom:8px">
+          <input id="busca-local" type="search" placeholder="Buscar endereço" autocomplete="off">
+          <button class="btn btn-secundario icone-btn" type="button" id="btn-buscar-local" aria-label="Buscar endereço">🔍</button>
+        </div>
+        <div id="mapa-cadastro"></div>
+        <p class="dica-mapa" id="dica-mapa">Toque no mapa ou arraste o marcador para ajustar o local exato.</p>
+      </div>
+      <div class="campo">
+        <label for="nome">Nome do local</label>
+        <input id="nome" placeholder="Ex.: Estacionamento Edifício Aurora" required>
+      </div>
+      <div class="campo">
+        <label for="endereco-ponto">Endereço</label>
+        <input id="endereco-ponto" placeholder="Preenchido pelo mapa – você pode ajustar">
+      </div>
+      <div class="campo">
+        <span class="rotulo">Tipo de conector</span>
+        <div class="chips" id="conectores"></div>
+      </div>
+      <div class="linha">
+        <div class="campo">
+          <label for="potencia">Potência (kW)</label>
+          <input id="potencia" type="number" min="1" step="0.1" inputmode="decimal" placeholder="60" required>
+        </div>
+        <div class="campo">
+          <label for="vagas">Vagas</label>
+          <input id="vagas" type="number" min="1" step="1" inputmode="numeric" value="1">
+        </div>
+      </div>
+      <div class="campo">
+        <label for="horario">Horário de funcionamento</label>
+        <input id="horario" placeholder="Ex.: 24 horas ou 08h às 22h">
+      </div>
+      <button class="btn btn-primario btn-bloco" type="submit" id="salvar">Salvar Ponto de Recarga</button>
+    </form>
+  </main>
+
+  <!-- A1 – possível duplicidade -->
+  <div class="modal" id="modal-duplicidade" role="dialog" aria-modal="true" aria-labelledby="titulo-dup">
+    <div class="cartao">
+      <h2 id="titulo-dup">Possível ponto duplicado</h2>
+      <p>Já existe um ponto de recarga muito próximo deste local. Deseja cadastrar mesmo assim?</p>
+      <div class="acoes">
+        <button class="btn btn-secundario" id="dup-cancelar" type="button">Revisar</button>
+        <button class="btn btn-primario" id="dup-confirmar" type="button">Cadastrar mesmo assim</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="vendor/leaflet/leaflet.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/novo-ponto.js"></script>
+</body>
+</html>
