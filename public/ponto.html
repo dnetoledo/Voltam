@@ -31,8 +31,12 @@
           <h1 id="nome"></h1>
           <p class="endereco" id="endereco" style="margin:4px 0 0;color:var(--suave)"></p>
         </div>
-        <div id="status"></div>
+        <div class="acoes-ponto">
+          <div id="status"></div>
+          <button class="favorito" id="favorito" type="button" aria-pressed="false" title="Adicionar aos favoritos">☆</button>
+        </div>
       </div>
+      <p class="atualizacao" id="atualizacao"></p>
       <div class="numeros">
         <div><strong id="conectores"></strong><span>Conector</span></div>
         <div><strong id="potencia"></strong><span>Potência</span></div>
@@ -43,8 +47,39 @@
         <div><span class="rot">Cadastrado em</span><span id="data"></span></div>
       </div>
       <div id="mini-mapa"></div>
-      <a class="btn btn-primario btn-bloco" id="rota" target="_blank" rel="noopener">Como chegar</a>
+      <a class="btn btn-secundario btn-bloco" id="rota" target="_blank" rel="noopener">Como chegar</a>
     </div>
+
+    <!-- Recarga ativa -->
+    <section class="cartao secao oculto" id="secao-recarga">
+      <h2>Recarga</h2>
+      <div id="recarga-conteudo"></div>
+    </section>
+
+    <!-- UC04 – Fazer check-in (protótipo da Figura 3) -->
+    <section class="cartao secao oculto" id="secao-checkin">
+      <h2>Fazer check-in</h2>
+      <p class="dica">Informe como está o ponto agora. O status fica visível para outros motoristas por 2 horas.</p>
+      <div id="checkin-login" class="oculto"><a class="btn btn-secundario btn-bloco" id="link-login-checkin">Entre para fazer check-in</a></div>
+      <form id="form-checkin" class="oculto">
+        <div class="opcoes-status" role="radiogroup" aria-label="Status do ponto">
+          <button type="button" class="opcao-status" data-status="DISPONIVEL" aria-checked="false" role="radio"><span>✓</span>Disponível</button>
+          <button type="button" class="opcao-status" data-status="OCUPADO" aria-checked="false" role="radio"><span>◷</span>Ocupado</button>
+          <button type="button" class="opcao-status" data-status="FORA_DE_SERVICO" aria-checked="false" role="radio"><span>⊗</span>Fora de serviço</button>
+        </div>
+        <div class="campo">
+          <label for="comentario">Comentário (opcional)</label>
+          <input id="comentario" maxlength="280" placeholder="Ex.: Carregador funcionando bem, fácil de estacionar.">
+        </div>
+        <div class="aviso" id="aviso-checkin" role="alert"></div>
+        <button class="btn btn-primario btn-bloco" type="submit" id="confirmar-checkin">Confirmar Check-in</button>
+      </form>
+    </section>
+
+    <section class="cartao secao oculto" id="secao-historico">
+      <h2>Check-ins recentes</h2>
+      <ul class="historico" id="historico"></ul>
+    </section>
   </main>
   <script src="vendor/leaflet/leaflet.js"></script>
   <script src="js/api.js"></script>

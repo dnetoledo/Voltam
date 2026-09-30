@@ -67,18 +67,38 @@ function camadaMapa(mapa) {
   }).addTo(mapa);
 }
 
-// Cabeçalho: mostra "Entrar" ou o nome do usuário com "Sair"
+function tempoRelativo(data) {
+  const min = Math.max(0, Math.round((Date.now() - new Date(data).getTime()) / 60000));
+  if (min < 1) return 'agora';
+  if (min < 60) return `há ${min} min`;
+  const h = Math.floor(min / 60);
+  if (h < 24) return `há ${h} h${min % 60 ? ` ${min % 60} min` : ''}`;
+  return new Date(data).toLocaleDateString('pt-BR');
+}
+
+// Cabeçalho: "Entrar" ou o nome do usuário (link para Meu Perfil) com "Sair", e o link "Sobre"
 function montarTopo() {
   const area = document.getElementById('topo-acoes');
   if (!area) return;
   const u = Sessao.usuario;
+  const sobre = '<a class="icone-link" href="sobre.html" title="Sobre o VoltMap" aria-label="Sobre o VoltMap">ⓘ</a>';
   if (u && Sessao.token) {
-    area.innerHTML = `<span class="usuario-nome">Olá, ${esc(u.nome.split(' ')[0])}</span>
+    area.innerHTML = `${sobre}<a class="usuario-nome" href="perfil.html" title="Meu perfil">
+        <span class="avatar" aria-hidden="true">${esc(u.nome.trim()[0] || '?').toUpperCase()}</span>
+        <span class="usuario-texto">Olá, ${esc(u.nome.split(' ')[0])}</span></a>
       <button class="btn btn-link" id="sair">Sair</button>`;
-    document.getElementById('sair').onclick = () => { Sessao.sair(); location.reload(); };
+    document.getElementById('sair').onclick = () => { Sessao.sair(); location.href = 'index.html'; };
   } else {
-    area.innerHTML = `<a class="btn btn-secundario" href="login.html?voltar=${encodeURIComponent(location.pathname + location.search)}">Entrar</a>`;
+    area.innerHTML = `${sobre}<a class="btn btn-secundario" href="login.html?voltar=${encodeURIComponent(location.pathname + location.search)}">Entrar</a>`;
   }
+}
+
+function exigirLogin() {
+  if (!Sessao.token) {
+    location.replace(`login.html?voltar=${encodeURIComponent(location.pathname + location.search)}`);
+    return false;
+  }
+  return true;
 }
 
 // ---------- App instalável (PWA) ----------

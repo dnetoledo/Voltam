@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#16a34a">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="VoltMap">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>Meu perfil – VoltMap</title>
+  <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+  <!-- TelaPerfil (Meu Perfil) -->
+  <header class="topo">
+    <a class="voltar" href="index.html" aria-label="Voltar ao mapa">←</a>
+    <strong>Meu perfil</strong>
+    <div class="topo-acoes" id="topo-acoes"></div>
+  </header>
+  <main class="pagina pagina-larga">
+    <div class="aviso" id="aviso" role="alert"></div>
+
+    <section class="cartao perfil-topo">
+      <span class="avatar avatar-grande" id="avatar" aria-hidden="true"></span>
+      <div>
+        <h1 id="nome-usuario"></h1>
+        <p class="dica" id="email-usuario"></p>
+        <p class="dica" id="desde"></p>
+      </div>
+    </section>
+
+    <section class="cartao secao oculto" id="secao-recarga">
+      <h2>⚡ Recarga ativa</h2>
+      <div id="recarga"></div>
+    </section>
+
+    <div class="resumo-perfil">
+      <div class="cartao"><strong id="qtd-pontos">0</strong><span>pontos cadastrados</span></div>
+      <div class="cartao"><strong id="qtd-favoritos">0</strong><span>favoritos</span></div>
+      <div class="cartao"><strong id="qtd-checkins">0</strong><span>check-ins recentes</span></div>
+    </div>
+
+    <section class="cartao secao">
+      <h2>★ Meus favoritos</h2>
+      <ul class="lista-simples" id="favoritos"></ul>
+    </section>
+
+    <section class="cartao secao">
+      <h2>Pontos que cadastrei</h2>
+      <ul class="lista-simples" id="pontos"></ul>
+    </section>
+
+    <section class="cartao secao">
+      <h2>Meus check-ins recentes</h2>
+      <ul class="historico" id="checkins"></ul>
+    </section>
+
+    <section class="cartao secao">
+      <h2>Meus dados</h2>
+      <form id="form-dados" novalidate>
+        <div class="campo"><label for="nome">Nome</label><input id="nome" autocomplete="name"></div>
+        <div class="campo"><label for="email">E-mail</label><input id="email" disabled></div>
+        <div class="aviso" id="aviso-dados" role="alert"></div>
+        <button class="btn btn-primario" type="submit">Salvar dados</button>
+      </form>
+    </section>
+
+    <section class="cartao secao">
+      <h2>Alterar senha</h2>
+      <form id="form-senha" novalidate>
+        <div class="campo"><label for="senha-atual">Senha atual</label><input id="senha-atual" type="password" autocomplete="current-password"></div>
+        <div class="linha">
+          <div class="campo"><label for="nova-senha">Nova senha</label><input id="nova-senha" type="password" autocomplete="new-password"></div>
+          <div class="campo"><label for="confirmar-senha">Confirmar</label><input id="confirmar-senha" type="password" autocomplete="new-password"></div>
+        </div>
+        <div class="aviso" id="aviso-senha" role="alert"></div>
+        <button class="btn btn-primario" type="submit">Alterar senha</button>
+      </form>
+    </section>
+
+    <div class="rodape-perfil">
+      <a class="btn btn-secundario" href="sobre.html">ⓘ Sobre o VoltMap</a>
+      <button class="btn btn-secundario" id="sair-perfil">Sair da conta</button>
+    </div>
+  </main>
+  <script src="js/api.js"></script>
+  <script src="js/perfil.js"></script>
+</body>
+</html>

@@ -12,6 +12,20 @@ const marcadores = new Map();
 
 montarTopo();
 montarConviteInstalacao();
+mostrarRecargaAtiva();
+
+// Aviso de recarga ativa do motorista logado
+async function mostrarRecargaAtiva() {
+  if (!Sessao.token) return;
+  try {
+    const { recarga } = await api('GET', '/recargas/ativa');
+    if (!recarga) return;
+    const faixa = el('faixa-recarga');
+    faixa.href = `ponto.html?id=${recarga.pontoId}`;
+    el('faixa-recarga-texto').innerHTML = `<strong>Recarga ativa</strong> em ${esc(recarga.pontoNome)} · iniciada ${tempoRelativo(recarga.dataHora)}`;
+    faixa.hidden = false;
+  } catch { /* sessão expirada ou sem conexão */ }
+}
 const mapa = L.map('mapa', { zoomControl: true }).setView([SAO_PAULO.lat, SAO_PAULO.lng], 12);
 camadaMapa(mapa);
 camadaPontos.addTo(mapa);
