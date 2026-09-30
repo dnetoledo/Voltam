@@ -1,0 +1,94 @@
+# ⚡ VoltMap – Localizador de Pontos de Recarga para Veículos Elétricos
+
+Projeto da disciplina **Prática Profissional em Análise e Desenvolvimento de Sistemas** (Universidade Presbiteriana Mackenzie).
+Autora: Dayane Nascimento de Toledo · Professor: Tomaz Mikio Sasaki
+
+**Versão 0.1 – Fase de Construção, Iteração 1 (C1)**
+
+## Funcionalidades desta versão
+
+| Caso de uso | Funcionalidade |
+|---|---|
+| RF01 | Criar conta de motorista (senha protegida com bcrypt) |
+| UC01 | Autenticar-se (login com token JWT; credenciais inválidas e conta bloqueada) |
+| UC02 | Buscar pontos de recarga próximos pela localização ou por endereço, com filtros de conector, potência, disponibilidade e raio; resultados ordenados por distância |
+| RF05 | Ver detalhes de um ponto de recarga |
+| UC03 | Cadastrar novo ponto de recarga (status "não verificado" e alerta de possível duplicidade) |
+
+Ficam para a iteração C2: check-in (UC04), avaliações, favoritos, denúncias, moderação (UC05), gestão de usuários e fotos dos pontos.
+
+## Tecnologias
+
+- **Back-end:** Node.js 20+ e Express
+- **Banco de dados:** PostgreSQL
+- **Front-end:** HTML, CSS e JavaScript, com mapa Leaflet e dados do OpenStreetMap
+- **Hospedagem:** Render (aplicação) e Neon (banco de dados)
+
+## Estrutura do projeto (relação com o Documento de Projeto)
+
+```
+src/
+  controllers/     GRASP Controller  – AutenticacaoController, BuscaPontosController, CadastroPontoController
+  repositories/    GRASP Pure Fabrication – RepositorioUsuario, RepositorioPontoDeRecarga
+  models/          Entidades – Usuario, Motorista (Creator), PontoDeRecarga (Information Expert)
+  middlewares/     Controle de acesso por token JWT
+  routes/          Rotas da API REST
+public/            Telas (classes de fronteira)
+  login.html       TelaLogin
+  cadastro.html    TelaCadastroUsuario
+  index.html       TelaMapa
+  ponto.html       TelaDetalhesPonto
+  novo-ponto.html  TelaNovoPontoRecarga
+database/
+  schema.sql       Criação das tabelas
+  consultas.sql    Consultas diretas para comprovar a persistência dos dados
+scripts/
+  criar-banco.js   Cria as tabelas e insere dados de exemplo
+tests/             Testes automatizados (Jest + Supertest)
+docs/              Documentação do projeto
+```
+
+## API
+
+| Método | Rota | Descrição | Autenticação |
+|---|---|---|---|
+| POST | `/api/usuarios` | Criar conta | – |
+| POST | `/api/auth/login` | Login | – |
+| GET | `/api/pontos?lat=&lng=&raio=&conectores=&potenciaMin=&status=` | Buscar pontos próximos | – |
+| GET | `/api/pontos/:id` | Detalhes do ponto | – |
+| POST | `/api/pontos` | Cadastrar ponto | Token JWT |
+
+## Como rodar no computador
+
+Pré-requisitos: [Node.js 20+](https://nodejs.org) e um banco PostgreSQL (pode ser o do Neon).
+
+```bash
+npm install
+cp .env.example .env        # depois edite o .env com a DATABASE_URL e o JWT_SECRET
+npm run db:setup            # cria as tabelas e os dados de exemplo
+npm start                   # abre em http://localhost:3000
+```
+
+Usuários de teste criados pelo `db:setup` (senha `voltmap123`): `motorista@voltmap.com` e `admin@voltmap.com`.
+
+## Testes
+
+```bash
+npm test                                   # testes que não precisam de banco
+TEST_DATABASE_URL=postgresql://... npm test   # todos os testes (use um banco SEPARADO: as tabelas são recriadas)
+```
+
+## Publicação (deploy)
+
+1. **Banco (Neon):** crie um projeto em [neon.tech](https://neon.tech) e copie a *connection string*.
+2. **Aplicação (Render):** em [render.com](https://render.com), crie um *Web Service* ligado a este repositório:
+   - Build command: `npm install`
+   - Start command: `npm start`
+   - Variáveis de ambiente: `DATABASE_URL` (do Neon) e `JWT_SECRET` (um texto secreto longo)
+3. Rode `npm run db:setup` uma vez apontando para o banco do Neon (pelo seu computador, com a `DATABASE_URL` do Neon no `.env`).
+4. A cada `git push` na branch `main`, o Render publica a nova versão automaticamente.
+
+## Links
+
+- Repositório: https://github.com/dnetoledo/Voltam
+- Quadro Kanban: https://github.com/users/dnetoledo/projects/1
