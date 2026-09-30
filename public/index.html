@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E⚡%3C/text%3E%3C/svg%3E">
+  <title>VoltMap – Pontos de recarga</title>
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+  <!-- TelaMapa (UC02 – Buscar Pontos de Recarga Próximos) -->
+  <header class="topo">
+    <a class="marca" href="index.html"><span class="raio">⚡</span>VoltMap</a>
+    <div class="topo-acoes" id="topo-acoes"></div>
+  </header>
+
+  <div class="tela-mapa">
+    <div class="barra-busca">
+      <form class="busca" id="form-busca">
+        <input id="endereco" type="search" placeholder="Buscar endereço ou bairro" aria-label="Endereço" autocomplete="off">
+        <button class="btn btn-primario icone-btn" type="submit" aria-label="Buscar">🔍</button>
+        <button class="btn btn-secundario icone-btn" type="button" id="btn-local" aria-label="Minha localização" title="Minha localização">📍</button>
+        <button class="btn btn-secundario icone-btn" type="button" id="btn-filtros" aria-label="Filtros" aria-expanded="false" title="Filtros">⚙︎</button>
+      </form>
+
+      <div class="filtros" id="filtros">
+        <div class="grupo">
+          <span class="rotulo">Tipo de conector</span>
+          <div class="chips" id="filtro-conectores"></div>
+        </div>
+        <div class="grupo">
+          <span class="rotulo">Disponibilidade</span>
+          <div class="chips" id="filtro-status"></div>
+        </div>
+        <div class="linha">
+          <div>
+            <span class="rotulo">Potência mínima</span>
+            <select id="filtro-potencia">
+              <option value="">Qualquer</option>
+              <option value="7">7 kW ou mais</option>
+              <option value="22">22 kW ou mais</option>
+              <option value="50">50 kW ou mais (rápido)</option>
+              <option value="100">100 kW ou mais</option>
+            </select>
+          </div>
+          <div>
+            <span class="rotulo">Raio de busca</span>
+            <select id="filtro-raio">
+              <option value="5">5 km</option>
+              <option value="10" selected>10 km</option>
+              <option value="25">25 km</option>
+              <option value="50">50 km</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="conteudo-mapa">
+      <div class="mapa-wrap">
+        <div id="mapa" role="region" aria-label="Mapa de pontos de recarga"></div>
+        <button class="btn buscar-area" id="buscar-area" type="button">↻ Buscar nesta área</button>
+      </div>
+      <section class="resultados" aria-live="polite">
+        <div class="aviso" id="aviso"></div>
+        <p class="resumo" id="resumo">Obtendo sua localização…</p>
+        <ul class="lista" id="lista"></ul>
+      </section>
+    </div>
+  </div>
+
+  <a class="btn btn-primario fab" href="novo-ponto.html">＋ Adicionar ponto</a>
+
+  <script src="vendor/leaflet/leaflet.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/mapa.js"></script>
+</body>
+</html>
