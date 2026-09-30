@@ -63,3 +63,22 @@ CREATE TABLE IF NOT EXISTS favorito (
   data_adicionado  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   PRIMARY KEY (motorista_id, ponto_id)
 );
+
+-- ---------------------------------------------------------------------
+-- Pagamento da recarga (MODO DEMONSTRAÇÃO – nenhuma cobrança é realizada)
+-- Por segurança, do cartão guardamos apenas bandeira, 4 últimos dígitos, validade e titular.
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS forma_pagamento (
+  id            SERIAL PRIMARY KEY,
+  motorista_id  INTEGER     NOT NULL REFERENCES usuario(id) ON DELETE CASCADE,
+  bandeira      VARCHAR(20) NOT NULL,
+  final_cartao  CHAR(4)     NOT NULL CHECK (final_cartao ~ '^[0-9]{4}$'),
+  validade      CHAR(5)     NOT NULL CHECK (validade ~ '^(0[1-9]|1[0-2])/[0-9]{2}$'),
+  titular       VARCHAR(80) NOT NULL,
+  padrao        BOOLEAN     NOT NULL DEFAULT FALSE,
+  criado_em     TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE check_in ADD COLUMN IF NOT EXISTS forma_pagamento VARCHAR(40);
+ALTER TABLE check_in ADD COLUMN IF NOT EXISTS energia_kwh    NUMERIC(8,2);
+ALTER TABLE check_in ADD COLUMN IF NOT EXISTS valor_estimado NUMERIC(10,2);

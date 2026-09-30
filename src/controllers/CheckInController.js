@@ -5,6 +5,13 @@ const Motorista = require('../models/Motorista');
 const repositorioPonto = require('../repositories/RepositorioPontoDeRecarga');
 const repositorioUsuario = require('../repositories/RepositorioUsuario');
 const repositorioCheckIn = require('../repositories/RepositorioCheckIn');
+const repositorioPagamento = require('../repositories/RepositorioFormaPagamento');
+
+// Código Pix de DEMONSTRAÇÃO (não pagável): identifica a recarga e o valor
+function codigoPixDemonstracao(recargaId, valor) {
+  const v = valor.toFixed(2);
+  return `00020126360014BR.GOV.BCB.PIX0114VOLTMAP-DEMO52040000530398654${String(v.length).padStart(2, '0')}${v}5802BR5907VOLTMAP6009SAO PAULO62${String(`RECARGA${recargaId}`.length + 4).padStart(2, '0')}05${String(`RECARGA${recargaId}`.length).padStart(2, '0')}RECARGA${recargaId}6304DEMO`;
+}
 
 async function motoristaLogado(req, res) {
   const motorista = await repositorioUsuario.buscarPorId(req.usuario.id);
@@ -64,9 +71,26 @@ module.exports = {
     if (ponto.statusVigente() === 'FORA_DE_SERVICO') {
       return res.status(409).json({ erro: 'Este ponto está fora de serviço.' });
     }
-    const r = await registrar(motorista, ponto, { status: 'OCUPADO', comentario: 'Recarga iniciada', carregando: true });
+    // Forma de pagamento escolhida (MODO DEMONSTRAÇÃO – nenhuma cobrança é realizada)
+    const pagamento = req.body?.pagamento || {};
+    let formaPagamento;
+    if (pagamento.tipo === 'PIX') {
+      formaPagamento = 'Pix';
+    } else if (pagamento.tipo === 'CARTAO') {
+      const cartao = await repositorioPagamento.buscar(motorista.id, Number(pagamento.cartaoId));
+      if (!cartao) return res.status(400).json({ erro: 'Cartão não encontrado. Escolha outra forma de pagamento.' });
+      formaPagamento = cartao.descricao();
+    } else {
+      return res.status(400).json({ erro: 'Escolha a forma de pagamento: Pix ou cartão de crédito.' });
+    }
+    const r = await registrar(motorista, ponto, { status: 'OCUPADO', comentario: 'Recarga iniciada', carregando: true, formaPagamento });
     r.checkIn.pontoNome = ponto.nome;
     return res.status(201).json({ recarga: r.checkIn, ponto: r.ponto });
+  },
+
+  // GET /api/recargas (histórico do motorista)
+  async historicoRecargas(req, res) {
+    return res.json(await repositorioCheckIn.listarRecargas(req.usuario.id, 10));
   },
 
   // GET /api/recargas/ativa
@@ -79,10 +103,23 @@ module.exports = {
     const motorista = await motoristaLogado(req, res); if (!motorista) return undefined;
     const ativa = await repositorioCheckIn.buscarRecargaAtiva(motorista.id);
     if (!ativa) return res.status(404).json({ erro: 'Você não tem recarga ativa.' });
-    const encerrada = await repositorioCheckIn.encerrar(ativa.id);
     const ponto = await repositorioPonto.buscarPorId(ativa.pontoId);
+    // Information Expert: a própria recarga calcula duração, energia e valor estimados
+    const consumo = ativa.calcularConsumo(ponto ? ponto.potenciaKw : 7.4);
+    await repositorioCheckIn.encerrar(ativa.id, consumo);
     if (ponto) await registrar(motorista, ponto, { status: 'DISPONIVEL', comentario: 'Recarga encerrada – vaga liberada' });
-    const minutos = Math.max(1, Math.round((encerrada.encerradoEm - encerrada.dataHora) / 60000));
-    return res.json({ mensagem: `Recarga encerrada após ${minutos} min. A vaga foi liberada.`, minutos });
+    const pix = ativa.formaPagamento === 'Pix';
+    return res.json({
+      mensagem: `Recarga encerrada após ${consumo.minutos} min. A vaga foi liberada.`,
+      resumo: {
+        ponto: ativa.pontoNome,
+        ...consumo,
+        formaPagamento: ativa.formaPagamento,
+        situacao: pix ? 'Pix gerado (simulação)' : 'Pagamento aprovado (simulação)',
+        ...(pix && { pixCopiaECola: codigoPixDemonstracao(ativa.id, consumo.valor) }),
+        demonstracao: true,
+      },
+      minutos: consumo.minutos,
+    });
   },
 };

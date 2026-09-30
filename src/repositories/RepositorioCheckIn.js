@@ -8,9 +8,9 @@ const comNomes = `SELECT c.*, u.nome AS motorista_nome, p.nome AS ponto_nome
 module.exports = {
   async salvar(c) {
     const { rows } = await db.query(
-      `INSERT INTO check_in (ponto_id, motorista_id, status_informado, comentario, carregando)
-       VALUES ($1,$2,$3,$4,$5) RETURNING *`,
-      [c.pontoId, c.motoristaId, c.statusInformado, c.comentario, c.carregando],
+      `INSERT INTO check_in (ponto_id, motorista_id, status_informado, comentario, carregando, forma_pagamento)
+       VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
+      [c.pontoId, c.motoristaId, c.statusInformado, c.comentario, c.carregando, c.formaPagamento],
     );
     return new CheckIn(rows[0]);
   },
@@ -34,8 +34,18 @@ module.exports = {
     return rows[0] ? new CheckIn(rows[0]) : null;
   },
 
-  async encerrar(id) {
-    const { rows } = await db.query('UPDATE check_in SET encerrado_em = NOW() WHERE id = $1 RETURNING *', [id]);
+  async encerrar(id, { energiaKwh, valor }) {
+    const { rows } = await db.query(
+      'UPDATE check_in SET encerrado_em = NOW(), energia_kwh = $2, valor_estimado = $3 WHERE id = $1 RETURNING *',
+      [id, energiaKwh, valor],
+    );
     return new CheckIn(rows[0]);
+  },
+
+  async listarRecargas(motoristaId, limite = 10) {
+    const { rows } = await db.query(
+      `${comNomes} WHERE c.motorista_id = $1 AND c.carregando ORDER BY c.data_hora DESC LIMIT $2`, [motoristaId, limite],
+    );
+    return rows.map((r) => new CheckIn(r));
   },
 };

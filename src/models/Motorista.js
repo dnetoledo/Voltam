@@ -13,13 +13,14 @@ class Motorista extends Usuario {
     });
   }
 
-  realizarCheckIn(ponto, { status, comentario, carregando = false }) {
+  realizarCheckIn(ponto, { status, comentario, carregando = false, formaPagamento = null }) {
     return new CheckIn({
       ponto_id: ponto.id,
       motorista_id: this.id,
       status_informado: status,
       comentario: comentario ? String(comentario).trim() : null,
       carregando,
+      forma_pagamento: formaPagamento,
     });
   }
 }

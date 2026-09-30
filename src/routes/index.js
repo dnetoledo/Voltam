@@ -6,6 +6,7 @@ const CadastroPontoController = require('../controllers/CadastroPontoController'
 const CheckInController = require('../controllers/CheckInController');
 const FavoritoController = require('../controllers/FavoritoController');
 const PerfilController = require('../controllers/PerfilController');
+const PagamentoController = require('../controllers/PagamentoController');
 const { version } = require('../../package.json');
 
 const router = express.Router();
@@ -38,6 +39,7 @@ router.post('/pontos', autenticacao, CadastroPontoController.cadastrarPonto);
 router.get('/pontos/:id/checkins', CheckInController.listarCheckIns);
 router.post('/pontos/:id/checkins', autenticacao, CheckInController.registrarCheckIn);
 router.post('/recargas', autenticacao, CheckInController.iniciarRecarga);
+router.get('/recargas', autenticacao, CheckInController.historicoRecargas);
 router.get('/recargas/ativa', autenticacao, CheckInController.recargaAtiva);
 router.post('/recargas/ativa/encerrar', autenticacao, CheckInController.encerrarRecarga);
 
@@ -46,6 +48,12 @@ router.get('/favoritos', autenticacao, FavoritoController.listar);
 router.get('/favoritos/:pontoId', autenticacao, FavoritoController.verificar);
 router.put('/favoritos/:pontoId', autenticacao, FavoritoController.adicionar);
 router.delete('/favoritos/:pontoId', autenticacao, FavoritoController.remover);
+
+// Formas de pagamento da recarga (MODO DEMONSTRAÇÃO – sem cobrança)
+router.get('/pagamentos/cartoes', autenticacao, PagamentoController.listar);
+router.post('/pagamentos/cartoes', autenticacao, PagamentoController.adicionar);
+router.put('/pagamentos/cartoes/:id/padrao', autenticacao, PagamentoController.definirPadrao);
+router.delete('/pagamentos/cartoes/:id', autenticacao, PagamentoController.remover);
 
 // Meu Perfil
 router.get('/perfil', autenticacao, PerfilController.obterPerfil);
