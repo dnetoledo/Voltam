@@ -50,6 +50,7 @@ public/            Telas (classes de fronteira)
   novo-ponto.html  TelaNovoPontoRecarga
   perfil.html      TelaPerfil
   sobre.html       TelaSobre (versão publicada)
+  ajuda.html       TelaAjuda – Guia do Usuário dentro da aplicação (botão ? no topo)
 database/
   schema.sql       Criação das tabelas
   consultas.sql    Consultas diretas para comprovar a persistência dos dados

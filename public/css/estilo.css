@@ -266,3 +266,23 @@ button, input, select { font: inherit; }
 .novo-cartao summary::-webkit-details-marker { display: none; }
 .novo-cartao[open] summary { margin-bottom: 14px; }
 .icone-recarga { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--verde-claro); flex: none; }
+
+/* Guia do Usuário dentro da aplicação */
+.guia h1 { margin: 0 0 8px; font-size: 1.4rem; }
+.guia .cartao > p { line-height: 1.55; }
+.indice { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.indice a { padding: 6px 12px; border-radius: 999px; background: var(--fundo); color: var(--texto); text-decoration: none; font-size: .85rem; font-weight: 600; }
+.indice a:hover { background: var(--verde-claro); color: #166534; }
+.topico { margin-top: 12px; padding: 0 20px; scroll-margin-top: 70px; }
+.topico summary { cursor: pointer; padding: 16px 0; font-weight: 700; font-size: 1.02rem; list-style: none; display: flex; justify-content: space-between; }
+.topico summary::-webkit-details-marker { display: none; }
+.topico summary::after { content: '＋'; color: var(--verde); }
+.topico[open] summary::after { content: '－'; }
+.topico[open] { padding-bottom: 16px; }
+.topico ol { padding-left: 20px; line-height: 1.6; margin: 0 0 12px; }
+.topico p { line-height: 1.55; margin: 0 0 12px; }
+.topico img { display: block; max-width: 100%; max-height: 420px; margin: 8px auto 12px; border-radius: 12px; border: 1px solid var(--borda); }
+.topico .duas { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: start; }
+.topico .duas img { max-height: 360px; margin: 0 auto; }
+.problemas dt { font-weight: 700; margin-top: 8px; }
+.problemas dd { margin: 2px 0 0; color: #374151; }

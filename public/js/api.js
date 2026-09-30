@@ -81,7 +81,8 @@ function montarTopo() {
   const area = document.getElementById('topo-acoes');
   if (!area) return;
   const u = Sessao.usuario;
-  const sobre = '<a class="icone-link" href="sobre.html" title="Sobre o VoltMap" aria-label="Sobre o VoltMap">ⓘ</a>';
+  const sobre = '<a class="icone-link" href="ajuda.html" title="Guia do Usuário" aria-label="Guia do Usuário">?</a>'
+    + '<a class="icone-link" href="sobre.html" title="Sobre o VoltMap" aria-label="Sobre o VoltMap">ⓘ</a>';
   if (u && Sessao.token) {
     area.innerHTML = `${sobre}<a class="usuario-nome" href="perfil.html" title="Meu perfil">
         <span class="avatar" aria-hidden="true">${esc(u.nome.trim()[0] || '?').toUpperCase()}</span>

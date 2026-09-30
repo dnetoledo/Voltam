@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#16a34a">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="VoltMap">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>Guia do Usuário – VoltMap</title>
+  <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+  <!-- TelaAjuda (Guia do Usuário dentro da aplicação) -->
+  <header class="topo">
+    <a class="voltar" href="index.html" aria-label="Voltar ao mapa">←</a>
+    <strong>Guia do Usuário</strong>
+    <div class="topo-acoes" id="topo-acoes"></div>
+  </header>
+  <main class="pagina pagina-larga guia">
+    <section class="cartao">
+      <h1>Como usar o VoltMap</h1>
+      <p>O VoltMap é um mapa colaborativo de pontos de recarga para veículos elétricos. Encontre pontos próximos, veja os detalhes, cadastre novos pontos, faça check-in, registre suas recargas e pague por cartão ou Pix.</p>
+      <p class="dica">Versão 0.1 · buscar e consultar pontos é livre; as demais funções pedem uma conta.</p>
+      <nav class="indice" aria-label="Índice">
+        <a href="#acessar">1. Acessar</a><a href="#instalar">2. Instalar no celular</a><a href="#conta">3. Criar conta e entrar</a>
+        <a href="#buscar">4. Buscar pontos</a><a href="#filtros">5. Filtros</a><a href="#detalhes">6. Detalhes e rota</a>
+        <a href="#cadastrar">7. Cadastrar ponto</a><a href="#checkin">8. Check-in</a><a href="#recarga">9. Recarga</a>
+        <a href="#pagamento">10. Pagamento</a><a href="#favoritos">11. Favoritos</a><a href="#perfil">12. Meu perfil</a>
+        <a href="#sobre">13. Versão</a><a href="#problemas">14. Problemas comuns</a>
+      </nav>
+    </section>
+
+    <details class="cartao topico" id="acessar" open>
+      <summary>1. Acessar a aplicação</summary>
+      <ol>
+        <li>Abra o navegador (Safari, Chrome, Firefox ou Edge) e acesse <strong id="url-app">voltmap-u1iy.onrender.com</strong>.</li>
+        <li>No primeiro acesso do dia, a página pode levar <strong>até 1 minuto</strong> para abrir: o servidor gratuito está "acordando".</li>
+        <li>Quando o navegador pedir, <strong>permita a localização</strong> para ver os pontos perto de você.</li>
+      </ol>
+      <p class="dica">Conta de demonstração: <strong>motorista@voltmap.com</strong> · senha <strong>voltmap123</strong>.</p>
+    </details>
+
+    <details class="cartao topico" id="instalar">
+      <summary>2. Instalar no celular (como app)</summary>
+      <p><strong>iPhone (Safari):</strong> toque em <strong>Compartilhar</strong> (quadrado com seta) → <strong>Adicionar à Tela de Início</strong> → <strong>Adicionar</strong>. Abra pelo ícone verde.</p>
+      <p><strong>Android (Chrome):</strong> toque em <strong>Instalar</strong> no aviso verde acima do mapa (ou menu ⋮ → Instalar app).</p>
+      <img src="ajuda/instalar.jpg" alt="Aviso de instalação no iPhone" loading="lazy">
+      <p class="dica">No app instalado, faça login novamente: ele guarda o login separado do navegador.</p>
+    </details>
+
+    <details class="cartao topico" id="conta">
+      <summary>3. Criar conta e entrar</summary>
+      <ol>
+        <li>Toque em <strong>Entrar</strong> (topo) ou em <strong>＋ Adicionar ponto</strong>.</li>
+        <li>Sem conta? Toque em <strong>Cadastre-se</strong>, preencha nome, e-mail e senha (mínimo 6 caracteres) duas vezes e toque em <strong>Criar conta</strong>.</li>
+        <li>Com conta, informe e-mail e senha e toque em <strong>Entrar</strong>. Seu nome aparece no topo.</li>
+      </ol>
+      <div class="duas"><img src="ajuda/criar-conta.jpg" alt="Tela Criar conta" loading="lazy"><img src="ajuda/login.jpg" alt="Tela Entrar" loading="lazy"></div>
+      <p class="dica">"E-mail ou senha inválidos": confira os dados. "Conta bloqueada": fale com o suporte. Para sair, toque em <strong>Sair</strong>.</p>
+    </details>
+
+    <details class="cartao topico" id="buscar">
+      <summary>4. Buscar pontos próximos</summary>
+      <ol>
+        <li>O mapa mostra os pontos em até 10 km, e a lista os ordena do mais próximo ao mais distante.</li>
+        <li>Para buscar outro lugar, digite um endereço na barra e toque em 🔍; 📍 volta à sua localização.</li>
+        <li>Arrastou o mapa? Toque em <strong>↻ Buscar nesta área</strong>.</li>
+      </ol>
+      <img src="ajuda/mapa.jpg" alt="Mapa com lista de pontos" loading="lazy">
+      <p><span class="status status-DISPONIVEL">Disponível</span> <span class="status status-OCUPADO">Ocupado</span> <span class="status status-FORA_DE_SERVICO">Fora de serviço</span> <span class="status status-NAO_VERIFICADO">Não verificado</span></p>
+    </details>
+
+    <details class="cartao topico" id="filtros">
+      <summary>5. Filtrar resultados</summary>
+      <p>Toque em <strong>⚙</strong> e escolha <strong>tipo de conector</strong>, <strong>disponibilidade</strong>, <strong>potência mínima</strong> e <strong>raio</strong> (5 a 50 km). O resultado atualiza na hora. Sem resultados, o VoltMap oferece buscar em um raio maior.</p>
+      <img src="ajuda/filtros.jpg" alt="Filtros abertos" loading="lazy">
+    </details>
+
+    <details class="cartao topico" id="detalhes">
+      <summary>6. Detalhes do ponto e rota</summary>
+      <p>Toque em um ponto da lista (ou em <strong>Ver detalhes</strong> no mapa) para ver conector, potência, vagas, horário, status e mapa. <strong>Como chegar</strong> abre a rota no Google Maps.</p>
+      <img src="ajuda/detalhes.jpg" alt="Detalhes do ponto" loading="lazy">
+    </details>
+
+    <details class="cartao topico" id="cadastrar">
+      <summary>7. Cadastrar um novo ponto</summary>
+      <ol>
+        <li>No mapa, toque em <strong>＋ Adicionar ponto</strong> (é preciso estar logado).</li>
+        <li>Busque o endereço ou toque no mapa; arraste o marcador para o local exato.</li>
+        <li>Preencha nome, tipos de conector, potência (kW), vagas e horário, e toque em <strong>Salvar Ponto de Recarga</strong>.</li>
+      </ol>
+      <p>O ponto aparece para todos como <strong>Não verificado</strong>. Se já houver um ponto a menos de 50 m, o VoltMap avisa: escolha <strong>Revisar</strong> ou <strong>Cadastrar mesmo assim</strong>.</p>
+      <div class="duas"><img src="ajuda/novo-ponto.jpg" alt="Cadastro de ponto" loading="lazy"><img src="ajuda/duplicidade.jpg" alt="Aviso de duplicidade" loading="lazy"></div>
+    </details>
+
+    <details class="cartao topico" id="checkin">
+      <summary>8. Fazer check-in</summary>
+      <ol>
+        <li>Na página do ponto, em <strong>Fazer check-in</strong>, escolha <strong>Disponível</strong>, <strong>Ocupado</strong> ou <strong>Fora de serviço</strong>.</li>
+        <li>Se quiser, escreva um comentário e toque em <strong>Confirmar Check-in</strong>.</li>
+      </ol>
+      <p>O status vale por <strong>2 horas</strong> e aparece em <strong>Check-ins recentes</strong>. "Fora de serviço" sinaliza o ponto para verificação.</p>
+      <img src="ajuda/checkin.jpg" alt="Check-in" loading="lazy">
+    </details>
+
+    <details class="cartao topico" id="recarga">
+      <summary>9. Recarga ativa</summary>
+      <ol>
+        <li>Na página do ponto, toque em <strong>⚡ Iniciar recarga aqui</strong> e escolha a forma de pagamento (item 10).</li>
+        <li>O ponto fica <strong>Ocupado</strong> e uma faixa verde no topo do mapa mostra sua recarga.</li>
+        <li>Ao terminar, toque em <strong>Encerrar recarga e liberar a vaga</strong>.</li>
+      </ol>
+      <div class="duas"><img src="ajuda/recarga.jpg" alt="Recarga ativa" loading="lazy"><img src="ajuda/faixa-recarga.jpg" alt="Faixa de recarga ativa no mapa" loading="lazy"></div>
+    </details>
+
+    <details class="cartao topico" id="pagamento">
+      <summary>10. Pagamento (cartão ou Pix)</summary>
+      <p class="demo">🧪 <strong>Modo demonstração:</strong> nenhuma cobrança é realizada.</p>
+      <ol>
+        <li><strong>Cadastrar cartão:</strong> em <a href="perfil.html#pagamentos">Meu perfil → Formas de pagamento</a>, toque em <strong>＋ Cadastrar cartão de crédito</strong>. Para testar: 4242 4242 4242 4242.</li>
+        <li><strong>Pagar:</strong> ao iniciar a recarga, escolha um cartão salvo ou <strong>Pix</strong>.</li>
+        <li><strong>Resumo:</strong> ao encerrar, veja duração, energia (kWh), preço de referência e <strong>total estimado</strong>. Com Pix, aparece um código copia e cola de demonstração.</li>
+      </ol>
+      <p class="seguranca">🔒 O VoltMap guarda apenas a bandeira e os 4 últimos dígitos do cartão.</p>
+      <div class="duas"><img src="ajuda/pagamento.jpg" alt="Escolha da forma de pagamento" loading="lazy"><img src="ajuda/resumo.jpg" alt="Resumo da recarga" loading="lazy"></div>
+    </details>
+
+    <details class="cartao topico" id="favoritos">
+      <summary>11. Favoritos</summary>
+      <p>Na página do ponto, toque na estrela <strong>☆</strong>; ela fica amarela <strong>★</strong>. Toque de novo para remover. Seus favoritos ficam em Meu perfil.</p>
+      <img src="ajuda/favorito.jpg" alt="Estrela de favorito" loading="lazy">
+    </details>
+
+    <details class="cartao topico" id="perfil">
+      <summary>12. Meu perfil</summary>
+      <p>Toque no seu nome (topo). Você vê recarga ativa, resumo, favoritos, pontos que cadastrou, check-ins, <strong>Minhas recargas</strong> (energia e valor), <strong>Formas de pagamento</strong>, e pode alterar nome e senha.</p>
+      <img src="ajuda/perfil.jpg" alt="Meu perfil" loading="lazy">
+    </details>
+
+    <details class="cartao topico" id="sobre">
+      <summary>13. Versão do aplicativo</summary>
+      <p>Toque em <strong>ⓘ</strong> no topo para abrir <a href="sobre.html">Sobre o VoltMap</a>: versão publicada, tag no GitHub, commit, data de publicação, novidades e histórico de versões.</p>
+      <img src="ajuda/sobre.jpg" alt="Tela Sobre" loading="lazy">
+    </details>
+
+    <details class="cartao topico" id="problemas">
+      <summary>14. Problemas comuns</summary>
+      <dl class="problemas">
+        <dt>A página demora para abrir</dt><dd>Aguarde até 1 minuto no primeiro acesso do dia.</dd>
+        <dt>O mapa não mostra minha posição</dt><dd>Permita a localização no navegador ou busque por endereço.</dd>
+        <dt>"Endereço não encontrado"</dt><dd>Inclua a cidade, por exemplo "Rua Augusta, São Paulo".</dd>
+        <dt>Nenhum ponto aparece</dt><dd>Aumente o raio ou remova filtros.</dd>
+        <dt>"Sessão expirada"</dt><dd>Entre novamente; a sessão dura 8 horas.</dd>
+      </dl>
+    </details>
+  </main>
+  <script src="js/api.js"></script>
+  <script>
+    montarTopo();
+    document.getElementById('url-app').textContent = location.host;
+    // abre o tópico indicado no endereço (ex.: ajuda.html#pagamento)
+    function abrirTopico() {
+      const t = location.hash && document.querySelector(location.hash);
+      if (t && t.tagName === 'DETAILS') { t.open = true; t.scrollIntoView(); }
+    }
+    document.querySelectorAll('.indice a').forEach((a) => a.addEventListener('click', () => setTimeout(abrirTopico, 0)));
+    window.addEventListener('hashchange', abrirTopico);
+    abrirTopico();
+  </script>
+</body>
+</html>
