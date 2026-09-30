@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#16a34a">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="VoltMap">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>Sobre – VoltMap</title>
+  <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+  <!-- TelaSobre (versão publicada e histórico de versões) -->
+  <header class="topo">
+    <a class="voltar" href="index.html" aria-label="Voltar ao mapa">←</a>
+    <strong>Sobre o VoltMap</strong>
+    <div class="topo-acoes" id="topo-acoes"></div>
+  </header>
+  <main class="pagina pagina-larga">
+    <section class="cartao sobre-topo">
+      <img src="/icons/icon-192.png" alt="" width="72" height="72">
+      <div>
+        <h1>VoltMap</h1>
+        <p class="dica">Localizador colaborativo de pontos de recarga para veículos elétricos</p>
+        <span class="versao-selo" id="versao-selo">versão …</span>
+      </div>
+    </section>
+
+    <section class="cartao secao">
+      <h2>Versão publicada</h2>
+      <dl class="dados-versao">
+        <dt>Versão</dt><dd id="v-versao">…</dd>
+        <dt>Tag no GitHub</dt><dd><a id="v-tag" target="_blank" rel="noopener">…</a></dd>
+        <dt>Commit publicado</dt><dd id="v-commit">…</dd>
+        <dt>No ar desde</dt><dd id="v-data">…</dd>
+        <dt>Ambiente</dt><dd id="v-ambiente">…</dd>
+        <dt>Endereço</dt><dd id="v-url"></dd>
+      </dl>
+    </section>
+
+    <section class="cartao secao">
+      <h2>Novidades da versão 0.1</h2>
+      <ul class="novidades">
+        <li><strong>Mapa de pontos de recarga</strong> por localização ou endereço, com filtros de conector, disponibilidade, potência e raio (UC02)</li>
+        <li><strong>Criar conta e entrar</strong> com senha protegida (RF01 e UC01)</li>
+        <li><strong>Cadastrar novos pontos</strong> com alerta de ponto duplicado (UC03)</li>
+        <li><strong>Check-in</strong>: informe se o ponto está disponível, ocupado ou fora de serviço; o status vale por 2 horas (UC04)</li>
+        <li><strong>Recarga ativa</strong>: avise que está carregando e libere a vaga ao terminar</li>
+        <li><strong>Favoritos</strong> e <strong>Meu perfil</strong> (RF09)</li>
+        <li><strong>App instalável</strong> na tela de início do celular</li>
+      </ul>
+    </section>
+
+    <section class="cartao secao">
+      <h2>Histórico de versões</h2>
+      <p class="dica">Últimas alterações publicadas no repositório <a href="https://github.com/dnetoledo/Voltam" target="_blank" rel="noopener">dnetoledo/Voltam</a>.</p>
+      <ul class="historico-versoes" id="commits"><li class="dica">Carregando…</li></ul>
+    </section>
+
+    <section class="cartao secao">
+      <h2>Próximas versões</h2>
+      <ul class="novidades">
+        <li>Avaliações com nota e comentário (RF08)</li>
+        <li>Denúncias e moderação pelo administrador (RF10, RF11 e UC05)</li>
+        <li>Fotos dos pontos de recarga</li>
+      </ul>
+    </section>
+
+    <section class="cartao secao creditos">
+      <p>Projeto da disciplina <strong>Prática Profissional em Análise e Desenvolvimento de Sistemas</strong> – Universidade Presbiteriana Mackenzie.</p>
+      <p>Dayane Nascimento de Toledo · Professor Tomaz Mikio Sasaki · 2026</p>
+      <p class="dica">Mapas © colaboradores do OpenStreetMap · Biblioteca Leaflet</p>
+    </section>
+  </main>
+  <script src="js/api.js"></script>
+  <script src="js/sobre.js"></script>
+</body>
+</html>

@@ -14,12 +14,16 @@ Autora: Dayane Nascimento de Toledo · Professor: Tomaz Mikio Sasaki
 | UC02 | Buscar pontos de recarga próximos pela localização ou por endereço, com filtros de conector, potência, disponibilidade e raio; resultados ordenados por distância |
 | RF05 | Ver detalhes de um ponto de recarga |
 | UC03 | Cadastrar novo ponto de recarga (status "não verificado" e alerta de possível duplicidade) |
+| UC04 | Fazer check-in (disponível, ocupado ou fora de serviço; o status vale por 2 horas) e **recarga ativa** (iniciar/encerrar) |
+| RF09 | Favoritar pontos de recarga |
+| – | **Meu Perfil**: dados, alterar senha, recarga ativa, favoritos, pontos cadastrados e check-ins |
+| – | **Sobre o VoltMap**: versão publicada, commit e histórico de versões |
 
 O VoltMap é uma **aplicação web instalável (PWA)**: funciona no navegador do computador e do celular e pode ser
 instalado na tela de início do smartphone (iPhone: Safari → Compartilhar → *Adicionar à Tela de Início*;
 Android: Chrome → *Instalar app*), abrindo em tela cheia como um aplicativo.
 
-Ficam para a iteração C2: check-in (UC04), avaliações, favoritos, denúncias, moderação (UC05), gestão de usuários e fotos dos pontos.
+Ficam para a iteração C2: avaliações (RF08), denúncias e moderação (RF10, RF11, UC05), gestão de usuários (RF12) e fotos dos pontos.
 
 ## Tecnologias
 
@@ -32,9 +36,9 @@ Ficam para a iteração C2: check-in (UC04), avaliações, favoritos, denúncias
 
 ```
 src/
-  controllers/     GRASP Controller  – AutenticacaoController, BuscaPontosController, CadastroPontoController
-  repositories/    GRASP Pure Fabrication – RepositorioUsuario, RepositorioPontoDeRecarga
-  models/          Entidades – Usuario, Motorista (Creator), PontoDeRecarga (Information Expert)
+  controllers/     GRASP Controller  – Autenticacao, BuscaPontos, CadastroPonto, CheckIn, Favorito, Perfil
+  repositories/    GRASP Pure Fabrication – RepositorioUsuario, RepositorioPontoDeRecarga, RepositorioCheckIn, RepositorioFavorito
+  models/          Entidades – Usuario, Motorista (Creator), PontoDeRecarga (Information Expert), CheckIn
   middlewares/     Controle de acesso por token JWT
   routes/          Rotas da API REST
 public/            Telas (classes de fronteira)
@@ -43,6 +47,8 @@ public/            Telas (classes de fronteira)
   index.html       TelaMapa
   ponto.html       TelaDetalhesPonto
   novo-ponto.html  TelaNovoPontoRecarga
+  perfil.html      TelaPerfil
+  sobre.html       TelaSobre (versão publicada)
 database/
   schema.sql       Criação das tabelas
   consultas.sql    Consultas diretas para comprovar a persistência dos dados
@@ -61,6 +67,12 @@ docs/              Documentação do projeto
 | GET | `/api/pontos?lat=&lng=&raio=&conectores=&potenciaMin=&status=` | Buscar pontos próximos | – |
 | GET | `/api/pontos/:id` | Detalhes do ponto | – |
 | POST | `/api/pontos` | Cadastrar ponto | Token JWT |
+| GET / POST | `/api/pontos/:id/checkins` | Listar / registrar check-in | POST: Token JWT |
+| POST | `/api/recargas` · `/api/recargas/ativa/encerrar` | Iniciar / encerrar recarga | Token JWT |
+| GET | `/api/recargas/ativa` | Recarga ativa do motorista | Token JWT |
+| GET · PUT · DELETE | `/api/favoritos[/:pontoId]` | Favoritos | Token JWT |
+| GET · PUT | `/api/perfil` · `/api/perfil/senha` | Meu perfil | Token JWT |
+| GET | `/api/versao` | Versão publicada | – |
 
 ## Como rodar no computador
 
@@ -89,7 +101,7 @@ TEST_DATABASE_URL=postgresql://... npm test   # todos os testes (use um banco SE
    - Build command: `npm install`
    - Start command: `npm start`
    - Variáveis de ambiente: `DATABASE_URL` (do Neon) e `JWT_SECRET` (um texto secreto longo)
-3. Rode `npm run db:setup` uma vez apontando para o banco do Neon (pelo seu computador, com a `DATABASE_URL` do Neon no `.env`).
+3. As tabelas são criadas/atualizadas automaticamente quando o servidor inicia. Para inserir os dados de exemplo, rode `npm run db:setup` uma vez apontando para o banco do Neon (pelo seu computador, com a `DATABASE_URL` do Neon no `.env`).
 4. A cada `git push` na branch `main`, o Render publica a nova versão automaticamente.
 
 ## Links
