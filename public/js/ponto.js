@@ -82,7 +82,8 @@ async function carregarRecarga() {
   if (ativa && ativa.pontoId === ponto.id) {
     area.innerHTML = `<div class="recarga-ativa">
         <span class="pulso" aria-hidden="true"></span>
-        <div><strong>Você está carregando aqui</strong><br><span>Iniciada ${tempoRelativo(ativa.dataHora)} · válida até ${new Date(ativa.validade).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span></div>
+        <div><strong>Você está carregando aqui</strong><br><span>Iniciada ${tempoRelativo(ativa.dataHora)} · válida até ${new Date(ativa.validade).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
+        ${ativa.formaPagamento ? `<br><span>Pagamento: ${esc(ativa.formaPagamento)}</span>` : ''}</div>
       </div>
       <button class="btn btn-secundario btn-bloco" id="encerrar">Encerrar recarga e liberar a vaga</button>`;
     el('encerrar').onclick = encerrarRecarga;
@@ -98,8 +99,10 @@ async function carregarRecarga() {
 }
 
 async function iniciarRecarga() {
+  const pagamento = await escolherPagamento();
+  if (!pagamento) return;
   try {
-    const r = await api('POST', '/recargas', { pontoId: ponto.id });
+    const r = await api('POST', '/recargas', { pontoId: ponto.id, pagamento });
     preencher(r.ponto);
     mostrarAviso(el('aviso'), 'Recarga iniciada! O ponto agora aparece como ocupado.', 'ok');
     carregarRecarga(); carregarHistorico();
@@ -111,6 +114,7 @@ async function encerrarRecarga() {
   try {
     const r = await api('POST', '/recargas/ativa/encerrar');
     mostrarAviso(el('aviso'), r.mensagem, 'ok');
+    mostrarResumoRecarga(r.resumo);
     preencher(await api('GET', `/pontos/${ponto.id}`));
     carregarRecarga(); carregarHistorico();
   } catch (err) { mostrarAviso(el('aviso'), err.message); }

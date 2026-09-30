@@ -35,12 +35,26 @@ async function carregarPerfil() {
         <div class="linha"><a class="btn btn-secundario" href="ponto.html?id=${r.pontoId}">Ver ponto</a>
         <button class="btn btn-primario" id="encerrar">Encerrar recarga</button></div>`;
       el('encerrar').onclick = async () => {
-        try { const x = await api('POST', '/recargas/ativa/encerrar'); mostrarAviso(el('aviso'), x.mensagem, 'ok'); }
-        catch (err) { mostrarAviso(el('aviso'), err.message); }
+        try {
+          const x = await api('POST', '/recargas/ativa/encerrar');
+          mostrarAviso(el('aviso'), x.mensagem, 'ok');
+          mostrarResumoRecarga(x.resumo);
+          carregarPerfil();
+        } catch (err) { mostrarAviso(el('aviso'), err.message); }
         el('secao-recarga').classList.add('oculto');
         window.scrollTo({ top: 0, behavior: 'smooth' });
       };
     }
+
+    el('recargas').innerHTML = d.recargas.length ? d.recargas.map((r) => `
+        <li><span class="icone-recarga" aria-hidden="true">⚡</span><div>
+          <a href="ponto.html?id=${r.pontoId}"><strong>${esc(r.pontoNome)}</strong></a>
+          <span class="quando">${new Date(r.dataHora).toLocaleDateString('pt-BR')}</span>
+          <p>${!r.encerradoEm ? '<strong>Em andamento</strong>' : r.energiaKwh == null ? 'Encerrada'
+            : `${String(r.energiaKwh).replace('.', ',')} kWh · <strong>${moeda(r.valorEstimado)}</strong>`}
+          ${r.formaPagamento ? ` · ${esc(r.formaPagamento)}` : ''}</p></div></li>`).join('')
+      : '<li class="dica">Nenhuma recarga ainda. Abra um ponto e toque em "⚡ Iniciar recarga aqui".</li>';
+    mostrarCartoes(d.cartoes);
 
     el('favoritos').innerHTML = d.favoritos.length ? d.favoritos.map((p) => itemPonto(p)).join('')
       : '<li class="dica">Toque na estrela ☆ na página de um ponto para salvá-lo aqui.</li>';
@@ -55,6 +69,79 @@ async function carregarPerfil() {
     mostrarAviso(el('aviso'), err.message);
   }
 }
+
+// ---------- Formas de pagamento (MODO DEMONSTRAÇÃO) ----------
+function mostrarCartoes(cartoes) {
+  el('cartoes').innerHTML = cartoes.map((c) => `
+    <li><span class="icone-pagto">💳</span>
+      <div><strong>${esc(c.descricao)}</strong>${c.padrao ? ' <span class="selo-padrao">Padrão</span>' : ''}
+      <br><span class="dica">${esc(c.titular)} · validade ${esc(c.validade)}</span></div>
+      <div class="acoes-cartao">
+        ${c.padrao ? '' : `<button class="btn btn-link" data-padrao="${c.id}">Tornar padrão</button>`}
+        <button class="btn btn-link remover" data-remover="${c.id}">Remover</button>
+      </div></li>`).join('');
+}
+
+el('cartoes').addEventListener('click', async (e) => {
+  const padrao = e.target.closest('[data-padrao]');
+  const remover = e.target.closest('[data-remover]');
+  try {
+    if (padrao) await api('PUT', `/pagamentos/cartoes/${padrao.dataset.padrao}/padrao`);
+    if (remover) await api('DELETE', `/pagamentos/cartoes/${remover.dataset.remover}`);
+    if (padrao || remover) mostrarCartoes(await api('GET', '/pagamentos/cartoes'));
+  } catch (err) { mostrarAviso(el('aviso-cartao'), err.message); }
+});
+
+function detectarBandeira(n) {
+  if (/^4/.test(n)) return 'Visa';
+  if (/^(5[1-5]|2(2[2-9]|[3-6]\d|7[01]|720))/.test(n)) return 'Mastercard';
+  if (/^3[47]/.test(n)) return 'American Express';
+  if (/^(606282|3841)/.test(n)) return 'Hipercard';
+  if (/^(4011|4312|4389|4514|4576|5041|5066|5067|509|6277|6362|6363|650|6516|6550)/.test(n)) return 'Elo';
+  return null;
+}
+function luhnValido(n) {
+  let soma = 0;
+  for (let i = 0; i < n.length; i++) {
+    let d = Number(n[n.length - 1 - i]);
+    if (i % 2 === 1) { d *= 2; if (d > 9) d -= 9; }
+    soma += d;
+  }
+  return n.length >= 13 && soma % 10 === 0;
+}
+
+el('cartao-numero').addEventListener('input', (e) => {
+  const n = e.target.value.replace(/\D/g, '').slice(0, 19);
+  e.target.value = n.replace(/(\d{4})(?=\d)/g, '$1 ');
+  const b = detectarBandeira(n);
+  el('cartao-bandeira').textContent = b ? `Bandeira: ${b}` : '';
+});
+el('cartao-validade').addEventListener('input', (e) => {
+  const v = e.target.value.replace(/\D/g, '').slice(0, 4);
+  e.target.value = v.length > 2 ? `${v.slice(0, 2)}/${v.slice(2)}` : v;
+});
+
+el('form-cartao').onsubmit = async (e) => {
+  e.preventDefault();
+  const aviso = el('aviso-cartao');
+  esconderAviso(aviso);
+  const numero = el('cartao-numero').value.replace(/\D/g, '');
+  const bandeira = detectarBandeira(numero);
+  if (!luhnValido(numero)) return mostrarAviso(aviso, 'Número de cartão inválido.');
+  if (!bandeira) return mostrarAviso(aviso, 'Bandeira não aceita. Use Visa, Mastercard, Elo, American Express ou Hipercard.');
+  // Apenas bandeira, 4 últimos dígitos, validade e titular são enviados ao servidor
+  const dados = { bandeira, final: numero.slice(-4), validade: el('cartao-validade').value, titular: el('cartao-nome').value.trim() };
+  try {
+    await api('POST', '/pagamentos/cartoes', dados);
+    e.target.reset();
+    el('cartao-bandeira').textContent = '';
+    el('novo-cartao').open = false;
+    mostrarCartoes(await api('GET', '/pagamentos/cartoes'));
+    mostrarAviso(aviso, `Cartão ${bandeira} •••• ${dados.final} salvo.`, 'ok');
+  } catch (err) { mostrarAviso(aviso, err.message); }
+  return undefined;
+};
+if (location.hash === '#pagamentos') el('novo-cartao').open = true;
 
 el('form-dados').onsubmit = async (e) => {
   e.preventDefault();

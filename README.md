@@ -16,6 +16,7 @@ Autora: Dayane Nascimento de Toledo · Professor: Tomaz Mikio Sasaki
 | UC03 | Cadastrar novo ponto de recarga (status "não verificado" e alerta de possível duplicidade) |
 | UC04 | Fazer check-in (disponível, ocupado ou fora de serviço; o status vale por 2 horas) e **recarga ativa** (iniciar/encerrar) |
 | RF09 | Favoritar pontos de recarga |
+| – | **Pagamento da recarga** (cartão de crédito ou Pix) com resumo de energia e valor estimados — **modo demonstração, sem cobrança**; do cartão são guardados apenas bandeira e 4 últimos dígitos |
 | – | **Meu Perfil**: dados, alterar senha, recarga ativa, favoritos, pontos cadastrados e check-ins |
 | – | **Sobre o VoltMap**: versão publicada, commit e histórico de versões |
 
@@ -36,9 +37,9 @@ Ficam para a iteração C2: avaliações (RF08), denúncias e moderação (RF10,
 
 ```
 src/
-  controllers/     GRASP Controller  – Autenticacao, BuscaPontos, CadastroPonto, CheckIn, Favorito, Perfil
-  repositories/    GRASP Pure Fabrication – RepositorioUsuario, RepositorioPontoDeRecarga, RepositorioCheckIn, RepositorioFavorito
-  models/          Entidades – Usuario, Motorista (Creator), PontoDeRecarga (Information Expert), CheckIn
+  controllers/     GRASP Controller  – Autenticacao, BuscaPontos, CadastroPonto, CheckIn, Favorito, Perfil, Pagamento
+  repositories/    GRASP Pure Fabrication – RepositorioUsuario, RepositorioPontoDeRecarga, RepositorioCheckIn, RepositorioFavorito, RepositorioFormaPagamento
+  models/          Entidades – Usuario, Motorista (Creator), PontoDeRecarga (Information Expert), CheckIn, FormaPagamento
   middlewares/     Controle de acesso por token JWT
   routes/          Rotas da API REST
 public/            Telas (classes de fronteira)
@@ -72,6 +73,8 @@ docs/              Documentação do projeto
 | GET | `/api/recargas/ativa` | Recarga ativa do motorista | Token JWT |
 | GET · PUT · DELETE | `/api/favoritos[/:pontoId]` | Favoritos | Token JWT |
 | GET · PUT | `/api/perfil` · `/api/perfil/senha` | Meu perfil | Token JWT |
+| GET · POST · PUT · DELETE | `/api/pagamentos/cartoes[/:id[/padrao]]` | Cartões (só bandeira e final) | Token JWT |
+| GET | `/api/recargas` | Histórico de recargas | Token JWT |
 | GET | `/api/versao` | Versão publicada | – |
 
 ## Como rodar no computador

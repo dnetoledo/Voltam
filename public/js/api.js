@@ -148,3 +148,76 @@ function montarConviteInstalacao() {
   });
   window.addEventListener('appinstalled', () => { aviso.hidden = true; });
 }
+
+// ---------- Janelas (modais) e pagamento da recarga – MODO DEMONSTRAÇÃO ----------
+function abrirJanela(html) {
+  const fundo = document.createElement('div');
+  fundo.className = 'modal aberto';
+  fundo.setAttribute('role', 'dialog');
+  fundo.setAttribute('aria-modal', 'true');
+  fundo.innerHTML = `<div class="cartao janela">${html}</div>`;
+  document.body.appendChild(fundo);
+  const fechar = () => fundo.remove();
+  fundo.addEventListener('click', (e) => { if (e.target === fundo || e.target.closest('[data-fechar]')) fechar(); });
+  return { el: fundo, fechar };
+}
+
+const moeda = (v) => Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+const AVISO_DEMO = '<p class="demo">🧪 <strong>Modo demonstração:</strong> nenhuma cobrança é realizada.</p>';
+
+// Escolha da forma de pagamento ao iniciar a recarga. Resolve com { tipo, cartaoId } ou null (cancelado)
+async function escolherPagamento() {
+  let cartoes = [];
+  try { cartoes = await api('GET', '/pagamentos/cartoes'); } catch { /* segue só com Pix */ }
+  const padrao = cartoes.find((c) => c.padrao);
+  const opcoes = [
+    ...cartoes.map((c) => `<label class="opcao-pagto"><input type="radio" name="pagto" value="CARTAO:${c.id}" ${c.padrao ? 'checked' : ''}>
+        <span class="icone-pagto">💳</span><span><strong>${esc(c.descricao)}</strong><small>Crédito · validade ${esc(c.validade)}</small></span></label>`),
+    `<label class="opcao-pagto"><input type="radio" name="pagto" value="PIX" ${padrao ? '' : 'checked'}>
+        <span class="icone-pagto">◈</span><span><strong>Pix</strong><small>Código gerado ao encerrar a recarga</small></span></label>`,
+  ].join('');
+  return new Promise((resolve) => {
+    const j = abrirJanela(`<h2>Como você vai pagar?</h2>
+      <p class="dica">O valor é calculado pela energia estimada quando você encerrar a recarga.</p>
+      <div class="opcoes-pagto">${opcoes}</div>
+      <a class="btn-link-simples" href="perfil.html#pagamentos">＋ Cadastrar cartão de crédito</a>
+      ${AVISO_DEMO}
+      <div class="acoes"><button class="btn btn-secundario" data-fechar type="button">Cancelar</button>
+      <button class="btn btn-primario" id="confirmar-pagto" type="button">⚡ Iniciar recarga</button></div>`);
+    j.el.addEventListener('click', (e) => { if (e.target.closest('[data-fechar]') || e.target === j.el) resolve(null); });
+    j.el.querySelector('#confirmar-pagto').onclick = () => {
+      const v = j.el.querySelector('input[name="pagto"]:checked').value;
+      j.fechar();
+      resolve(v === 'PIX' ? { tipo: 'PIX' } : { tipo: 'CARTAO', cartaoId: Number(v.split(':')[1]) });
+    };
+  });
+}
+
+// Resumo exibido ao encerrar a recarga
+function mostrarResumoRecarga(r) {
+  const pix = r.pixCopiaECola ? `
+      <div class="pix">
+        <p><strong>Pix copia e cola</strong> (código de demonstração, não pagável)</p>
+        <textarea readonly rows="3" id="pix-codigo">${esc(r.pixCopiaECola)}</textarea>
+        <button class="btn btn-secundario btn-bloco" id="copiar-pix" type="button">Copiar código</button>
+      </div>` : '';
+  const j = abrirJanela(`<h2>✅ Recarga encerrada</h2>
+    <dl class="resumo-recarga">
+      <dt>Ponto</dt><dd>${esc(r.ponto)}</dd>
+      <dt>Duração</dt><dd>${r.minutos} min</dd>
+      <dt>Energia estimada</dt><dd>${String(r.energiaKwh).replace('.', ',')} kWh</dd>
+      <dt>Preço de referência</dt><dd>${moeda(r.precoKwh)}/kWh</dd>
+      <dt>Forma de pagamento</dt><dd>${esc(r.formaPagamento)}</dd>
+      <dt>Situação</dt><dd>${esc(r.situacao)}</dd>
+    </dl>
+    <p class="total">Total estimado <strong>${moeda(r.valor)}</strong></p>
+    ${pix}${AVISO_DEMO}
+    <div class="acoes"><button class="btn btn-primario" data-fechar type="button">Concluir</button></div>`);
+  const copiar = j.el.querySelector('#copiar-pix');
+  if (copiar) {
+    copiar.onclick = async () => {
+      try { await navigator.clipboard.writeText(r.pixCopiaECola); copiar.textContent = 'Código copiado!'; }
+      catch { j.el.querySelector('#pix-codigo').select(); }
+    };
+  }
+}

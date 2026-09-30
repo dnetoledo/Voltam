@@ -1,6 +1,6 @@
 // Service worker do VoltMap: permite instalar o app e abrir as telas mesmo com internet instável.
 // Estratégia "rede primeiro": sempre busca a versão mais nova e usa o cache só se estiver sem conexão.
-const CACHE = 'voltmap-v2';
+const CACHE = 'voltmap-v3';
 const ARQUIVOS = [
   '/', '/index.html', '/login.html', '/cadastro.html', '/ponto.html', '/novo-ponto.html', '/perfil.html', '/sobre.html',
   '/css/estilo.css', '/js/api.js', '/js/mapa.js', '/js/login.js', '/js/cadastro.js',

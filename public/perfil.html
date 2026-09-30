@@ -60,6 +60,33 @@
     </section>
 
     <section class="cartao secao">
+      <h2>Minhas recargas</h2>
+      <ul class="historico" id="recargas"></ul>
+    </section>
+
+    <section class="cartao secao" id="pagamentos">
+      <h2>Formas de pagamento</h2>
+      <ul class="lista-cartoes" id="cartoes"></ul>
+      <div class="cartao-pix"><span class="icone-pagto">◈</span><div><strong>Pix</strong><br><span class="dica">Disponível em todas as recargas, sem cadastro.</span></div></div>
+      <details class="novo-cartao" id="novo-cartao">
+        <summary class="btn btn-secundario">＋ Cadastrar cartão de crédito</summary>
+        <form id="form-cartao" novalidate autocomplete="off">
+          <div class="campo">
+            <label for="cartao-numero">Número do cartão</label>
+            <input id="cartao-numero" inputmode="numeric" autocomplete="off" placeholder="0000 0000 0000 0000" maxlength="23">
+            <span class="dica" id="cartao-bandeira"></span>
+          </div>
+          <div class="campo"><label for="cartao-nome">Nome impresso no cartão</label><input id="cartao-nome" autocomplete="off"></div>
+          <div class="campo"><label for="cartao-validade">Validade</label><input id="cartao-validade" inputmode="numeric" placeholder="MM/AA" maxlength="5" autocomplete="off"></div>
+          <p class="seguranca">🔒 Por segurança, o VoltMap guarda apenas a <strong>bandeira</strong> e os <strong>4 últimos dígitos</strong>. O número completo não sai do seu aparelho.</p>
+          <p class="demo">🧪 <strong>Modo demonstração:</strong> nenhuma cobrança é realizada. Use um número de teste, como 4242 4242 4242 4242.</p>
+          <div class="aviso" id="aviso-cartao" role="alert"></div>
+          <button class="btn btn-primario" type="submit">Salvar cartão</button>
+        </form>
+      </details>
+    </section>
+
+    <section class="cartao secao">
       <h2>Meus dados</h2>
       <form id="form-dados" novalidate>
         <div class="campo"><label for="nome">Nome</label><input id="nome" autocomplete="name"></div>
