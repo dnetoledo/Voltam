@@ -21,6 +21,13 @@ class Usuario {
     return this.status === 'BLOQUEADO';
   }
 
+  // RF12 – usados pelo Administrador na gestão de usuários
+  bloquear() { this.status = 'BLOQUEADO'; }
+
+  desbloquear() { this.status = 'ATIVO'; }
+
+  ehAdministrador() { return this.tipo === 'ADMINISTRADOR'; }
+
   static gerarHash(senha) {
     return bcrypt.hash(senha, 10);
   }
