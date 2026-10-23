@@ -5,6 +5,8 @@ Autora: Dayane Nascimento de Toledo · Professor: Tomaz Mikio Sasaki
 
 **Versão 0.2 – Fase de Construção, Iteração 2 (C2) – em desenvolvimento**
 
+Versões no repositório: tag `v1` (Iteração 1) · branch `iteracao2` (Iteração 2, em desenvolvimento).
+
 ## Funcionalidades desta versão
 
 | Caso de uso | Funcionalidade |
