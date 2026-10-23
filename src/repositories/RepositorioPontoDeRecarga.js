@@ -5,6 +5,11 @@ const PontoDeRecarga = require('../models/PontoDeRecarga');
 
 const KM_POR_GRAU_LAT = 111.32;
 
+// RF08 – cada ponto vem com a nota média e o total de avaliações (avaliações removidas não contam)
+const COM_AVALIACOES = `SELECT p.*, a.nota_media, a.total_avaliacoes FROM ponto_de_recarga p
+  LEFT JOIN (SELECT ponto_id, AVG(nota) AS nota_media, COUNT(*) AS total_avaliacoes
+             FROM avaliacao WHERE NOT removida GROUP BY ponto_id) a ON a.ponto_id = p.id`;
+
 // Retângulo que envolve o círculo de busca (filtro rápido feito pelo índice do banco)
 function areaDeBusca(lat, lng, raioKm) {
   const dLat = raioKm / KM_POR_GRAU_LAT;
@@ -15,27 +20,36 @@ function areaDeBusca(lat, lng, raioKm) {
 module.exports = {
   async buscarProximos({ latitude, longitude }, raioKm, filtros = {}) {
     const a = areaDeBusca(latitude, longitude, raioKm);
-    const cond = ['latitude BETWEEN $1 AND $2', 'longitude BETWEEN $3 AND $4', "status <> 'SUSPENSO'"];
+    const cond = ['p.latitude BETWEEN $1 AND $2', 'p.longitude BETWEEN $3 AND $4', "p.status <> 'SUSPENSO'"];
     const params = [a.latMin, a.latMax, a.lngMin, a.lngMax];
 
     if (filtros.conectores?.length) {
       params.push(filtros.conectores);
-      cond.push(`tipos_conector && $${params.length}::text[]`);
+      cond.push(`p.tipos_conector && $${params.length}::text[]`);
     }
     if (filtros.potenciaMin) {
       params.push(filtros.potenciaMin);
-      cond.push(`potencia_kw >= $${params.length}`);
+      cond.push(`p.potencia_kw >= $${params.length}`);
     }
 
-    const { rows } = await db.query(`SELECT * FROM ponto_de_recarga WHERE ${cond.join(' AND ')}`, params);
+    const { rows } = await db.query(`${COM_AVALIACOES} WHERE ${cond.join(' AND ')}`, params);
     return rows.map((r) => new PontoDeRecarga(r));
   },
 
   async buscarPorId(id) {
-    const { rows } = await db.query(
-      "SELECT * FROM ponto_de_recarga WHERE id = $1 AND status <> 'SUSPENSO'", [id],
-    );
+    const { rows } = await db.query(`${COM_AVALIACOES} WHERE p.id = $1 AND p.status <> 'SUSPENSO'`, [id]);
     return rows[0] ? new PontoDeRecarga(rows[0]) : null;
+  },
+
+  // Moderação (UC05): o administrador também enxerga pontos suspensos
+  async buscarPorIdIncluindoSuspensos(id) {
+    const { rows } = await db.query(`${COM_AVALIACOES} WHERE p.id = $1`, [id]);
+    return rows[0] ? new PontoDeRecarga(rows[0]) : null;
+  },
+
+  async listarSuspensos() {
+    const { rows } = await db.query(`${COM_AVALIACOES} WHERE p.status = 'SUSPENSO' ORDER BY p.status_atualizado_em DESC NULLS LAST`);
+    return rows.map((r) => new PontoDeRecarga(r));
   },
 
   // Fluxo alternativo A1 do UC03: já existe ponto a menos de "raioMetros"?
@@ -46,7 +60,7 @@ module.exports = {
 
   async buscarPorMotorista(motoristaId) {
     const { rows } = await db.query(
-      "SELECT * FROM ponto_de_recarga WHERE motorista_id = $1 AND status <> 'SUSPENSO' ORDER BY data_cadastro DESC",
+      `${COM_AVALIACOES} WHERE p.motorista_id = $1 AND p.status <> 'SUSPENSO' ORDER BY p.data_cadastro DESC`,
       [motoristaId],
     );
     return rows.map((r) => new PontoDeRecarga(r));

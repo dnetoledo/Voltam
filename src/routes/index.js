@@ -1,5 +1,6 @@
 const express = require('express');
 const autenticacao = require('../middlewares/autenticacao');
+const { exigirAdministrador } = require('../middlewares/autenticacao');
 const AutenticacaoController = require('../controllers/AutenticacaoController');
 const BuscaPontosController = require('../controllers/BuscaPontosController');
 const CadastroPontoController = require('../controllers/CadastroPontoController');
@@ -7,6 +8,12 @@ const CheckInController = require('../controllers/CheckInController');
 const FavoritoController = require('../controllers/FavoritoController');
 const PerfilController = require('../controllers/PerfilController');
 const PagamentoController = require('../controllers/PagamentoController');
+const AvaliacaoController = require('../controllers/AvaliacaoController');
+const FotoController = require('../controllers/FotoController');
+const DenunciaController = require('../controllers/DenunciaController');
+const ModeracaoController = require('../controllers/ModeracaoController');
+const GestaoUsuariosController = require('../controllers/GestaoUsuariosController');
+const NotificacaoController = require('../controllers/NotificacaoController');
 const { version } = require('../../package.json');
 
 const router = express.Router();
@@ -59,5 +66,37 @@ router.delete('/pagamentos/cartoes/:id', autenticacao, PagamentoController.remov
 router.get('/perfil', autenticacao, PerfilController.obterPerfil);
 router.put('/perfil', autenticacao, PerfilController.atualizarDados);
 router.put('/perfil/senha', autenticacao, PerfilController.alterarSenha);
+
+// ---------------- Iteração C2 ----------------
+
+// RF08 – Avaliar ponto de recarga
+router.get('/pontos/:id/avaliacoes', AvaliacaoController.listar);
+router.get('/pontos/:id/avaliacoes/minha', autenticacao, AvaliacaoController.minha);
+router.post('/pontos/:id/avaliacoes', autenticacao, AvaliacaoController.avaliar);
+
+// RF05 – Fotos do ponto de recarga
+router.get('/pontos/:id/fotos', FotoController.listar);
+router.post('/pontos/:id/fotos', autenticacao, FotoController.enviar);
+router.get('/fotos/:id', FotoController.imagem);
+
+// RF10 – Denunciar informação incorreta, avaliação inadequada ou foto imprópria
+router.post('/denuncias', autenticacao, DenunciaController.registrar);
+
+// Notificações do usuário (ex.: conteúdo removido pela moderação)
+router.get('/notificacoes', autenticacao, NotificacaoController.listar);
+router.post('/notificacoes/lidas', autenticacao, NotificacaoController.marcarComoLidas);
+
+// UC05 – Moderar Denúncias (somente administrador; estendido por Remover Conteúdo e Suspender Ponto)
+const admin = [autenticacao, exigirAdministrador];
+router.get('/moderacao/denuncias', admin, ModeracaoController.listarDenunciasPendentes);
+router.get('/moderacao/denuncias/:id', admin, ModeracaoController.obterDetalhes);
+router.post('/moderacao/denuncias/:id/decisao', admin, ModeracaoController.decidirDenuncia);
+router.get('/moderacao/historico', admin, ModeracaoController.historico);
+router.get('/moderacao/pontos-suspensos', admin, ModeracaoController.pontosSuspensos);
+router.post('/moderacao/pontos/:id/reativar', admin, ModeracaoController.reativarPonto);
+
+// RF12 – Gerenciar usuários (bloquear / desbloquear acesso)
+router.get('/admin/usuarios', admin, GestaoUsuariosController.listar);
+router.put('/admin/usuarios/:id/bloqueio', admin, GestaoUsuariosController.alterarBloqueio);
 
 module.exports = router;

@@ -18,7 +18,16 @@ async function carregarPerfil() {
     el('avatar').textContent = (u.nome.trim()[0] || '?').toUpperCase();
     el('nome-usuario').textContent = u.nome;
     el('email-usuario').textContent = u.email;
-    el('desde').textContent = `Motorista VoltMap desde ${new Date(u.dataCadastro).toLocaleDateString('pt-BR')}`;
+    const admin = u.tipo === 'ADMINISTRADOR';
+    el('desde').textContent = `${admin ? 'Administrador' : 'Motorista'} VoltMap desde ${new Date(u.dataCadastro).toLocaleDateString('pt-BR')}`;
+    el('atalho-admin').classList.toggle('oculto', !admin);
+    mostrarNotificacoes(d.notificacoes);
+    el('minhas-avaliacoes').innerHTML = d.avaliacoes.length ? d.avaliacoes.map((a) => `
+        <li><span class="nota-mini">${estrelas(a.nota)}</span><div>
+          <a href="ponto.html?id=${a.pontoId}"><strong>${esc(a.pontoNome)}</strong></a>
+          <span class="quando">${tempoRelativo(a.dataHora)}</span>
+          ${a.comentario ? `<p>${esc(a.comentario)}</p>` : ''}</div></li>`).join('')
+      : '<li class="dica">Você ainda não avaliou nenhum ponto. Abra um ponto e escolha de 1 a 5 estrelas.</li>';
     el('nome').value = u.nome;
     el('email').value = u.email;
 
@@ -168,5 +177,17 @@ el('form-senha').onsubmit = async (e) => {
   } catch (err) { mostrarAviso(aviso, err.message); }
   return undefined;
 };
+
+// Notificações: exibe e marca como lidas depois de mostradas
+function mostrarNotificacoes(lista) {
+  if (!lista.length) { el('secao-notificacoes').classList.add('oculto'); return; }
+  const naoLidas = lista.filter((n) => !n.lida).length;
+  el('secao-notificacoes').classList.remove('oculto');
+  el('contador-notificacoes').textContent = naoLidas ? `${naoLidas} nova${naoLidas > 1 ? 's' : ''}` : '';
+  el('notificacoes').innerHTML = lista.map((n) => `
+    <li class="${n.lida ? '' : 'nova'}"><span aria-hidden="true">${n.tipo === 'CONTEUDO_REMOVIDO' ? '⚑' : '🔔'}</span>
+      <div><p>${esc(n.mensagem)}</p><span class="quando">${tempoRelativo(n.dataEnvio)}</span></div></li>`).join('');
+  if (naoLidas) api('POST', '/notificacoes/lidas').catch(() => {});
+}
 
 el('sair-perfil').onclick = () => { Sessao.sair(); location.href = 'index.html'; };

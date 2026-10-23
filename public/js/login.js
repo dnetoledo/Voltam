@@ -1,7 +1,8 @@
 // TelaLogin – UC01: Autenticar-se
 function destinoSeguro() {
   const v = new URLSearchParams(location.search).get('voltar') || '';
-  return v.startsWith('/') && !v.startsWith('//') ? v : 'index.html';
+  if (v.startsWith('/') && !v.startsWith('//')) return v;
+  return Sessao.usuario?.tipo === 'ADMINISTRADOR' ? 'admin.html' : 'index.html';
 }
 document.getElementById('link-cadastro').href = `cadastro.html${location.search}`;
 

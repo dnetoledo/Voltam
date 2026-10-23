@@ -1,5 +1,7 @@
 // Entidade PontoDeRecarga (Modelo de Domínio – Seção 9)
 // Information Expert: calcula a distância até uma localização, pois detém latitude e longitude.
+// Especialização de ConteudoModeravel: pode ser denunciado e, na moderação, é suspenso.
+const ConteudoModeravel = require('./ConteudoModeravel');
 
 const STATUS = Object.freeze({
   NAO_VERIFICADO: 'NAO_VERIFICADO',
@@ -11,9 +13,11 @@ const STATUS = Object.freeze({
 
 const CONECTORES = Object.freeze(['Tipo 1', 'Tipo 2', 'CCS Combo', 'CHAdeMO', 'GB/T']);
 
-class PontoDeRecarga {
+class PontoDeRecarga extends ConteudoModeravel {
   constructor({ id, nome, endereco, latitude, longitude, tipos_conector, potencia_kw,
-    numero_vagas, horario_funcionamento, status, motorista_id, data_cadastro, status_atualizado_em }) {
+    numero_vagas, horario_funcionamento, status, motorista_id, data_cadastro, status_atualizado_em,
+    nota_media, total_avaliacoes }) {
+    super();
     this.id = id;
     this.nome = nome;
     this.endereco = endereco || null;
@@ -27,6 +31,32 @@ class PontoDeRecarga {
     this.motoristaId = motorista_id || null;
     this.dataCadastro = data_cadastro || null;
     this.statusAtualizadoEm = status_atualizado_em ? new Date(status_atualizado_em) : null;
+    // RF08 – resumo das avaliações (calculado pelo repositório)
+    this.notaMedia = nota_media != null ? Math.round(Number(nota_media) * 10) / 10 : null;
+    this.totalAvaliacoes = Number(total_avaliacoes || 0);
+  }
+
+  // ---------- ConteudoModeravel ----------
+  get tipoConteudo() { return 'PONTO'; }
+
+  get pontoRelacionadoId() { return this.id; }
+
+  descricao() { return `ponto de recarga "${this.nome}"`; }
+
+  // Polimorfismo: remover um ponto significa suspendê-lo (deixa de aparecer nas buscas até nova verificação)
+  remover() { this.suspender(); }
+
+  suspender() {
+    this.status = STATUS.SUSPENSO;
+    this.statusAtualizadoEm = new Date();
+  }
+
+  estaSuspenso() { return this.status === STATUS.SUSPENSO; }
+
+  // Administrador reativa o ponto após a verificação: volta como "não verificado"
+  reativar() {
+    this.status = STATUS.NAO_VERIFICADO;
+    this.statusAtualizadoEm = new Date();
   }
 
   // Status válido agora: "disponível" ou "ocupado" informados por check-in expiram após 2 horas
@@ -87,6 +117,8 @@ class PontoDeRecarga {
       status: this.statusVigente(),
       statusAtualizadoEm: this.statusAtualizadoEm,
       dataCadastro: this.dataCadastro,
+      notaMedia: this.notaMedia,
+      totalAvaliacoes: this.totalAvaliacoes,
       ...(this.distanciaKm !== undefined && { distanciaKm: Math.round(this.distanciaKm * 100) / 100 }),
     };
   }

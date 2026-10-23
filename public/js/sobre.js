@@ -8,7 +8,8 @@ async function carregarVersao() {
     const v = await api('GET', '/versao');
     el('versao-selo').textContent = `versão ${v.versao}`;
     el('v-versao').textContent = v.versao;
-    const tag = `v${v.versao.split('.').slice(0, 2).join('.')}`;
+    // Versão 0.N corresponde à iteração N da construção e à tag vN no repositório
+    const tag = `v${Number(v.versao.split('.')[1]) || v.versao.split('.')[0]}`;
     el('v-tag').textContent = tag;
     el('v-tag').href = `https://github.com/${REPO}/releases/tag/${tag}`;
     el('v-commit').innerHTML = v.commit

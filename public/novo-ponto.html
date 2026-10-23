@@ -60,6 +60,12 @@
         <label for="horario">Horário de funcionamento</label>
         <input id="horario" placeholder="Ex.: 24 horas ou 08h às 22h">
       </div>
+      <div class="campo">
+        <span class="rotulo">Fotos do local (opcional)</span>
+        <label class="area-foto" for="fotos-novo">📷 Adicionar foto
+          <input type="file" id="fotos-novo" accept="image/*" multiple hidden></label>
+        <div class="galeria galeria-previa" id="previa-fotos"></div>
+      </div>
       <button class="btn btn-primario btn-bloco" type="submit" id="salvar">Salvar Ponto de Recarga</button>
     </form>
   </main>

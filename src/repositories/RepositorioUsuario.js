@@ -3,10 +3,13 @@
 const db = require('../config/db');
 const Usuario = require('../models/Usuario');
 const Motorista = require('../models/Motorista');
+const Administrador = require('../models/Administrador');
 
 function paraObjeto(linha) {
   if (!linha) return null;
-  return linha.tipo === 'MOTORISTA' ? new Motorista(linha) : new Usuario(linha);
+  if (linha.tipo === 'MOTORISTA') return new Motorista(linha);
+  if (linha.tipo === 'ADMINISTRADOR') return new Administrador(linha);
+  return new Usuario(linha);
 }
 
 module.exports = {
@@ -27,6 +30,28 @@ module.exports = {
 
   async atualizarSenha(id, senhaHash) {
     await db.query('UPDATE usuario SET senha_hash = $1 WHERE id = $2', [senhaHash, id]);
+  },
+
+  // RF12 – lista de usuários para o administrador (com busca por nome ou e-mail)
+  async listar({ busca = '', limite = 50 } = {}) {
+    const { rows } = await db.query(
+      `SELECT u.*,
+         (SELECT COUNT(*) FROM ponto_de_recarga p WHERE p.motorista_id = u.id)::int AS total_pontos,
+         (SELECT COUNT(*) FROM denuncia d WHERE
+            (d.conteudo_tipo = 'PONTO' AND d.conteudo_id IN (SELECT id FROM ponto_de_recarga WHERE motorista_id = u.id))
+            OR (d.conteudo_tipo = 'AVALIACAO' AND d.conteudo_id IN (SELECT id FROM avaliacao WHERE motorista_id = u.id))
+            OR (d.conteudo_tipo = 'FOTO' AND d.conteudo_id IN (SELECT id FROM foto_ponto WHERE motorista_id = u.id))
+         )::int AS denuncias_recebidas
+       FROM usuario u
+       WHERE $1 = '' OR u.nome ILIKE '%' || $1 || '%' OR u.email ILIKE '%' || $1 || '%'
+       ORDER BY u.tipo DESC, u.nome LIMIT $2`,
+      [busca.trim(), limite],
+    );
+    return rows.map((r) => Object.assign(paraObjeto(r), { totalPontos: r.total_pontos, denunciasRecebidas: r.denuncias_recebidas }));
+  },
+
+  async atualizarStatus(usuario) {
+    await db.query('UPDATE usuario SET status = $1 WHERE id = $2', [usuario.status, usuario.id]);
   },
 
   async salvar({ nome, email, senhaHash, tipo = 'MOTORISTA' }) {

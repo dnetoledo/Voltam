@@ -16,7 +16,7 @@
   <link rel="stylesheet" href="css/estilo.css">
 </head>
 <body>
-  <!-- TelaDetalhesPonto (RF05 – Detalhes do ponto de recarga) -->
+  <!-- TelaDetalhesPonto (RF05 – Detalhes, UC04 – Check-in, RF08 – Avaliações, RF10 – Denúncias) -->
   <header class="topo">
     <a class="voltar" href="index.html" aria-label="Voltar ao mapa">←</a>
     <a class="marca" href="index.html"><span class="raio">⚡</span>VoltMap</a>
@@ -36,7 +36,7 @@
           <button class="favorito" id="favorito" type="button" aria-pressed="false" title="Adicionar aos favoritos">☆</button>
         </div>
       </div>
-      <p class="atualizacao" id="atualizacao"></p>
+      <p class="atualizacao"><span id="nota-topo"></span><span id="atualizacao"></span></p>
       <div class="numeros">
         <div><strong id="conectores"></strong><span>Conector</span></div>
         <div><strong id="potencia"></strong><span>Potência</span></div>
@@ -48,7 +48,43 @@
       </div>
       <div id="mini-mapa"></div>
       <a class="btn btn-secundario btn-bloco" id="rota" target="_blank" rel="noopener">Como chegar</a>
+      <button class="link-denuncia" id="denunciar-ponto" type="button">⚑ Denunciar ponto inexistente ou informação incorreta</button>
     </div>
+
+    <!-- RF05 – Fotos do local -->
+    <section class="cartao secao oculto" id="secao-fotos">
+      <div class="secao-titulo">
+        <h2>Fotos do local</h2>
+        <label class="btn btn-secundario btn-pequeno oculto" id="botao-foto">📷 Adicionar foto
+          <input type="file" id="arquivo-foto" accept="image/*" hidden></label>
+      </div>
+      <div class="aviso" id="aviso-fotos" role="alert"></div>
+      <div class="galeria" id="galeria"></div>
+    </section>
+
+    <!-- RF08 – Avaliações -->
+    <section class="cartao secao oculto" id="secao-avaliacoes">
+      <h2>Avaliações</h2>
+      <div class="media-avaliacoes" id="media-avaliacoes"></div>
+      <div id="avaliar-login" class="oculto"><a class="btn btn-secundario btn-bloco" id="link-login-avaliar">Entre para avaliar este ponto</a></div>
+      <form id="form-avaliacao" class="oculto">
+        <span class="rotulo" id="titulo-avaliar">Sua avaliação</span>
+        <div class="escolha-estrelas" role="radiogroup" aria-label="Nota de 1 a 5 estrelas">
+          <button type="button" data-nota="1" role="radio" aria-checked="false" aria-label="1 estrela">★</button>
+          <button type="button" data-nota="2" role="radio" aria-checked="false" aria-label="2 estrelas">★</button>
+          <button type="button" data-nota="3" role="radio" aria-checked="false" aria-label="3 estrelas">★</button>
+          <button type="button" data-nota="4" role="radio" aria-checked="false" aria-label="4 estrelas">★</button>
+          <button type="button" data-nota="5" role="radio" aria-checked="false" aria-label="5 estrelas">★</button>
+        </div>
+        <div class="campo">
+          <label for="comentario-avaliacao">Comentário (opcional)</label>
+          <textarea id="comentario-avaliacao" rows="3" maxlength="500" placeholder="Como foi sua experiência neste ponto?"></textarea>
+        </div>
+        <div class="aviso" id="aviso-avaliacao" role="alert"></div>
+        <button class="btn btn-primario btn-bloco" type="submit" id="enviar-avaliacao">Publicar avaliação</button>
+      </form>
+      <ul class="historico lista-avaliacoes" id="avaliacoes"></ul>
+    </section>
 
     <!-- Recarga ativa -->
     <section class="cartao secao oculto" id="secao-recarga">

@@ -52,8 +52,61 @@ async function main() {
   } else {
     console.log(`• Banco já possui ${total} pontos; seed de pontos ignorado`);
   }
+  await seedIteracao2(senhaHash);
   console.log('✔ Usuários de teste: motorista@voltmap.com / admin@voltmap.com (senha: voltmap123)');
   await db.end();
+}
+
+// Iteração C2: motoristas extras, avaliações (RF08) e denúncias pendentes (UC05) para demonstração
+async function seedIteracao2(senhaHash) {
+  const { rows: [{ total }] } = await db.query('SELECT COUNT(*)::int AS total FROM avaliacao');
+  if (total > 0) { console.log('• Avaliações já existem; seed da iteração 2 ignorado'); return; }
+
+  await db.query(
+    `INSERT INTO usuario (nome, email, senha_hash, tipo) VALUES
+       ('João Motorista', 'joao@voltmap.com', $1, 'MOTORISTA'),
+       ('Maria Eletrificada', 'maria@voltmap.com', $1, 'MOTORISTA')
+     ON CONFLICT (email) DO NOTHING`, [senhaHash],
+  );
+  const id = async (email) => (await db.query('SELECT id FROM usuario WHERE email = $1', [email])).rows[0].id;
+  const ponto = async (nome) => (await db.query('SELECT id FROM ponto_de_recarga WHERE nome = $1', [nome])).rows[0]?.id;
+  const [demo, joao, maria] = [await id('motorista@voltmap.com'), await id('joao@voltmap.com'), await id('maria@voltmap.com')];
+
+  const AVALIACOES = [
+    ['Eletroposto Paulista Center', demo, 5, 'Carregador rápido e vagas bem sinalizadas.'],
+    ['Eletroposto Paulista Center', maria, 4, 'Funciona bem, mas o estacionamento é pago.'],
+    ['Recarga Shopping Consolação', maria, 4, 'Fácil de achar, no 2º subsolo.'],
+    ['Recarga Shopping Consolação', joao, 1, 'Péssimo, o carregador nunca funciona, perda de tempo total, não recomendo pra ninguém!!!'],
+    ['Posto Rápido Rebouças', demo, 5, 'O mais rápido da região.'],
+    ['Eletroposto Ibirapuera', joao, 3, 'Às vezes tem fila no fim de semana.'],
+  ];
+  const avaliacaoIds = {};
+  for (const [nome, autor, nota, comentario] of AVALIACOES) {
+    const pid = await ponto(nome);
+    if (!pid) continue;
+    const { rows: [a] } = await db.query(
+      'INSERT INTO avaliacao (ponto_id, motorista_id, nota, comentario) VALUES ($1,$2,$3,$4) RETURNING id',
+      [pid, autor, nota, comentario],
+    );
+    avaliacaoIds[`${nome}|${autor}`] = a.id;
+  }
+
+  // Denúncias pendentes (protótipo do painel administrativo – Figura 4)
+  const ofensiva = avaliacaoIds[`Recarga Shopping Consolação|${joao}`];
+  const DENUNCIAS = [
+    [demo, 'AVALIACAO', ofensiva, 'AVALIACAO_INADEQUADA', null],
+    [maria, 'AVALIACAO', ofensiva, 'AVALIACAO_INADEQUADA', 'Linguagem agressiva.'],
+    [joao, 'PONTO', await ponto('Posto Rápido Rebouças'), 'INFORMACAO_INCORRETA', 'Potência cadastrada como 150 kW, mas o carregador entrega 50 kW.'],
+    [maria, 'PONTO', await ponto('Hotel Jardins Carregador'), 'PONTO_INEXISTENTE', 'Fui até o local e não existe nenhum carregador aqui.'],
+  ];
+  for (const [denunciante, tipo, conteudoId, motivo, descricao] of DENUNCIAS) {
+    if (!conteudoId) continue;
+    await db.query(
+      'INSERT INTO denuncia (denunciante_id, conteudo_tipo, conteudo_id, motivo, descricao) VALUES ($1,$2,$3,$4,$5)',
+      [denunciante, tipo, conteudoId, motivo, descricao],
+    );
+  }
+  console.log(`✔ ${AVALIACOES.length} avaliações e ${DENUNCIAS.length} denúncias de exemplo inseridas (iteração 2)`);
 }
 
 main().catch(async (e) => {

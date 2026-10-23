@@ -31,7 +31,8 @@
         <a href="#buscar">4. Buscar pontos</a><a href="#filtros">5. Filtros</a><a href="#detalhes">6. Detalhes e rota</a>
         <a href="#cadastrar">7. Cadastrar ponto</a><a href="#checkin">8. Check-in</a><a href="#recarga">9. Recarga</a>
         <a href="#pagamento">10. Pagamento</a><a href="#favoritos">11. Favoritos</a><a href="#perfil">12. Meu perfil</a>
-        <a href="#sobre">13. Versão</a><a href="#problemas">14. Problemas comuns</a>
+        <a href="#avaliar">13. Avaliar</a><a href="#fotos">14. Fotos</a><a href="#denunciar">15. Denunciar</a>
+        <a href="#administrador">16. Administrador</a><a href="#sobre">17. Versão</a><a href="#problemas">18. Problemas comuns</a>
       </nav>
     </section>
 
@@ -142,14 +143,50 @@
       <img src="ajuda/perfil.jpg" alt="Meu perfil" loading="lazy">
     </details>
 
+    <details class="cartao topico" id="avaliar">
+      <summary>13. Avaliar um ponto</summary>
+      <ol>
+        <li>Abra a página do ponto e desça até <strong>Avaliações</strong>.</li>
+        <li>Toque de 1 a 5 <strong>estrelas</strong> e, se quiser, escreva um comentário.</li>
+        <li>Toque em <strong>Publicar avaliação</strong>. A nota média aparece no topo do ponto e na lista do mapa.</li>
+      </ol>
+      <p>Você tem uma avaliação por ponto: se avaliar de novo, a anterior é atualizada. Suas avaliações ficam em Meu perfil.</p>
+      <img src="ajuda/avaliacao.jpg" alt="Seção de avaliações do ponto" loading="lazy">
+    </details>
+
+    <details class="cartao topico" id="fotos">
+      <summary>14. Fotos do local</summary>
+      <p>Na página do ponto, toque em <strong>📷 Adicionar foto</strong> e escolha uma imagem (ou tire uma foto pelo celular). Ao cadastrar um ponto novo, você também pode incluir até 5 fotos. A foto é reduzida no seu aparelho antes do envio, para economizar internet. Toque numa foto para ampliá-la.</p>
+      <img src="ajuda/fotos.jpg" alt="Fotos do local" loading="lazy">
+    </details>
+
+    <details class="cartao topico" id="denunciar">
+      <summary>15. Denunciar informação incorreta</summary>
+      <p>Encontrou um ponto que não existe, dados errados, uma avaliação ofensiva ou uma foto imprópria? Toque em <strong>⚑ Denunciar</strong> (abaixo de “Como chegar”, em cada avaliação ou em cada foto), escolha o motivo e envie. Um administrador analisa a denúncia; quem publicou não fica sabendo quem denunciou.</p>
+      <p>Se um conteúdo seu for removido pela moderação, você recebe uma <strong>notificação</strong> em Meu perfil.</p>
+      <img src="ajuda/denuncia.jpg" alt="Janela de denúncia" loading="lazy">
+    </details>
+
+    <details class="cartao topico" id="administrador">
+      <summary>16. Para o administrador: painel de moderação</summary>
+      <p>Entre com a conta de administrador: o VoltMap abre o <strong>Painel administrativo</strong> (também acessível pelo botão 🛡️ Painel no topo).</p>
+      <ol>
+        <li><strong>Denúncias</strong>: escolha uma denúncia pendente para ver o conteúdo, o motivo, quantos motoristas denunciaram e o status do ponto.</li>
+        <li>Decida: <strong>Arquivar denúncia</strong> (sem ação), <strong>Suspender ponto</strong> (some das buscas até nova verificação) ou <strong>Remover conteúdo</strong> (apaga a avaliação/foto ou suspende o ponto e notifica o autor).</li>
+        <li><strong>Usuários</strong>: busque por nome ou e-mail e toque em <strong>Bloquear</strong> ou <strong>Desbloquear</strong>. O bloqueio vale na hora.</li>
+        <li><strong>Pontos suspensos</strong>: depois de verificar o local, toque em <strong>Reativar ponto</strong>.</li>
+      </ol>
+      <img src="ajuda/painel-admin.jpg" alt="Painel administrativo com denúncias pendentes" loading="lazy">
+    </details>
+
     <details class="cartao topico" id="sobre">
-      <summary>13. Versão do aplicativo</summary>
+      <summary>17. Versão do aplicativo</summary>
       <p>Toque em <strong>ⓘ</strong> no topo para abrir <a href="sobre.html">Sobre o VoltMap</a>: versão publicada, tag no GitHub, commit, data de publicação, novidades e histórico de versões.</p>
       <img src="ajuda/sobre.jpg" alt="Tela Sobre" loading="lazy">
     </details>
 
     <details class="cartao topico" id="problemas">
-      <summary>14. Problemas comuns</summary>
+      <summary>18. Problemas comuns</summary>
       <dl class="problemas">
         <dt>A página demora para abrir</dt><dd>Aguarde até 1 minuto no primeiro acesso do dia.</dd>
         <dt>O mapa não mostra minha posição</dt><dd>Permita a localização no navegador ou busque por endereço.</dd>

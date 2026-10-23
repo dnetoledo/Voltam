@@ -5,19 +5,23 @@ const repositorioPonto = require('../repositories/RepositorioPontoDeRecarga');
 const repositorioFavorito = require('../repositories/RepositorioFavorito');
 const repositorioCheckIn = require('../repositories/RepositorioCheckIn');
 const repositorioPagamento = require('../repositories/RepositorioFormaPagamento');
+const repositorioAvaliacao = require('../repositories/RepositorioAvaliacao');
+const repositorioNotificacao = require('../repositories/RepositorioNotificacao');
 
 module.exports = {
   // GET /api/perfil
   async obterPerfil(req, res) {
     const usuario = await repositorioUsuario.buscarPorId(req.usuario.id);
     if (!usuario) return res.status(404).json({ erro: 'Usuário não encontrado.' });
-    const [pontos, favoritos, checkIns, recargaAtiva, recargas, cartoes] = await Promise.all([
+    const [pontos, favoritos, checkIns, recargaAtiva, recargas, cartoes, avaliacoes, notificacoes] = await Promise.all([
       repositorioPonto.buscarPorMotorista(usuario.id),
       repositorioFavorito.listar(usuario.id),
       repositorioCheckIn.listarPorMotorista(usuario.id, 5),
       repositorioCheckIn.buscarRecargaAtiva(usuario.id),
       repositorioCheckIn.listarRecargas(usuario.id, 10),
       repositorioPagamento.listar(usuario.id),
+      repositorioAvaliacao.listarPorMotorista(usuario.id, 10),
+      repositorioNotificacao.listar(usuario.id, 10),
     ]);
     return res.json({
       usuario: { ...usuario.toJSON(), dataCadastro: usuario.dataCadastro },
@@ -27,6 +31,8 @@ module.exports = {
       recargaAtiva,
       recargas,
       cartoes,
+      avaliacoes,
+      notificacoes,
     });
   },
 

@@ -19,20 +19,31 @@ async function api(metodo, caminho, corpo) {
     throw Object.assign(new Error('Sem conexão com o servidor. Tente novamente.'), { status: 0 });
   }
   const dados = await resposta.json().catch(() => ({}));
+  // RF12 – conta bloqueada pelo administrador: encerra a sessão neste aparelho
+  if (resposta.status === 403 && dados.bloqueado) Sessao.sair();
   if (!resposta.ok) throw Object.assign(new Error(dados.erro || 'Erro inesperado.'), { status: resposta.status, dados });
   return dados;
 }
 
 const STATUS_ROTULO = {
-  DISPONIVEL: 'Disponível', OCUPADO: 'Ocupado', FORA_DE_SERVICO: 'Fora de serviço', NAO_VERIFICADO: 'Não verificado',
+  DISPONIVEL: 'Disponível', OCUPADO: 'Ocupado', FORA_DE_SERVICO: 'Fora de serviço', NAO_VERIFICADO: 'Não verificado', SUSPENSO: 'Suspenso',
 };
-const STATUS_COR = { DISPONIVEL: '#16a34a', OCUPADO: '#d97706', FORA_DE_SERVICO: '#dc2626', NAO_VERIFICADO: '#6b7280' };
+const STATUS_COR = { DISPONIVEL: '#16a34a', OCUPADO: '#d97706', FORA_DE_SERVICO: '#dc2626', NAO_VERIFICADO: '#6b7280', SUSPENSO: '#7c3aed' };
 
 function esc(texto) {
   return String(texto ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 function seloStatus(status) {
   return `<span class="status status-${esc(status)}">${esc(STATUS_ROTULO[status] || status)}</span>`;
+}
+// RF08 – estrelas da nota (ex.: ★★★★☆)
+function estrelas(nota) {
+  const n = Math.round(Number(nota) || 0);
+  return `<span class="estrelas" aria-label="${n} de 5 estrelas">${'★'.repeat(n)}<span class="apagadas">${'★'.repeat(5 - n)}</span></span>`;
+}
+function resumoNota(p) {
+  return p.totalAvaliacoes
+    ? `<span class="nota-resumo">★ ${String(p.notaMedia).replace('.', ',')} <small>(${p.totalAvaliacoes})</small></span>` : '';
 }
 function formatarKm(km) {
   return km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(1).replace('.', ',')} km`;
@@ -84,7 +95,9 @@ function montarTopo() {
   const sobre = '<a class="icone-link" href="ajuda.html" title="Guia do Usuário" aria-label="Guia do Usuário">?</a>'
     + '<a class="icone-link" href="sobre.html" title="Sobre o VoltMap" aria-label="Sobre o VoltMap">ⓘ</a>';
   if (u && Sessao.token) {
-    area.innerHTML = `${sobre}<a class="usuario-nome" href="perfil.html" title="Meu perfil">
+    const painel = u.tipo === 'ADMINISTRADOR'
+      ? '<a class="btn btn-secundario btn-painel" href="admin.html" title="Painel administrativo">🛡️ <span class="usuario-texto">Painel</span></a>' : '';
+    area.innerHTML = `${sobre}${painel}<a class="usuario-nome" href="perfil.html" title="Meu perfil">
         <span class="avatar" aria-hidden="true">${esc(u.nome.trim()[0] || '?').toUpperCase()}</span>
         <span class="usuario-texto">Olá, ${esc(u.nome.split(' ')[0])}</span></a>
       <button class="btn btn-link" id="sair">Sair</button>`;
@@ -221,4 +234,72 @@ function mostrarResumoRecarga(r) {
       catch { j.el.querySelector('#pix-codigo').select(); }
     };
   }
+}
+
+// ---------- RF10 – Denunciar conteúdo ----------
+const MOTIVOS_DENUNCIA = {
+  PONTO: [['PONTO_INEXISTENTE', 'Ponto inexistente'], ['INFORMACAO_INCORRETA', 'Informação incorreta (potência, conector, horário…)'], ['OUTRO', 'Outro']],
+  AVALIACAO: [['AVALIACAO_INADEQUADA', 'Avaliação ofensiva ou inadequada'], ['CONTEUDO_IMPROPRIO', 'Spam / conteúdo impróprio'], ['INFORMACAO_INCORRETA', 'Informação falsa'], ['OUTRO', 'Outro']],
+  FOTO: [['CONTEUDO_IMPROPRIO', 'Foto imprópria ou spam'], ['INFORMACAO_INCORRETA', 'Foto não corresponde ao ponto'], ['OUTRO', 'Outro']],
+};
+const ALVO_DENUNCIA = { PONTO: 'este ponto de recarga', AVALIACAO: 'esta avaliação', FOTO: 'esta foto' };
+
+// Abre a janela de denúncia; resolve com a mensagem de sucesso ou null (cancelada)
+function abrirDenuncia(tipo, conteudoId) {
+  if (!Sessao.token) {
+    location.href = `login.html?voltar=${encodeURIComponent(location.pathname + location.search)}`;
+    return Promise.resolve(null);
+  }
+  const opcoes = MOTIVOS_DENUNCIA[tipo].map(([v, t], i) => `<label class="opcao-pagto"><input type="radio" name="motivo" value="${v}" ${i === 0 ? 'checked' : ''}><span><strong>${esc(t)}</strong></span></label>`).join('');
+  return new Promise((resolve) => {
+    const j = abrirJanela(`<h2>⚑ Denunciar ${ALVO_DENUNCIA[tipo]}</h2>
+      <p class="dica">Um administrador vai analisar a denúncia. Quem publicou não fica sabendo quem denunciou.</p>
+      <div class="opcoes-pagto">${opcoes}</div>
+      <div class="campo"><label for="denuncia-descricao">Detalhes (opcional)</label>
+        <textarea id="denuncia-descricao" rows="3" maxlength="500" placeholder="Ex.: a potência real é 22 kW, não 120 kW."></textarea></div>
+      <div class="aviso" id="aviso-denuncia" role="alert"></div>
+      <div class="acoes"><button class="btn btn-secundario" data-fechar type="button">Cancelar</button>
+      <button class="btn btn-perigo" id="enviar-denuncia" type="button">Enviar denúncia</button></div>`);
+    j.el.addEventListener('click', (e) => { if (e.target.closest('[data-fechar]') || e.target === j.el) resolve(null); });
+    j.el.querySelector('#enviar-denuncia').onclick = async () => {
+      const motivo = j.el.querySelector('input[name="motivo"]:checked').value;
+      const descricao = j.el.querySelector('#denuncia-descricao').value.trim();
+      try {
+        const r = await api('POST', '/denuncias', { tipo, conteudoId, motivo, descricao });
+        j.fechar();
+        resolve(r.mensagem);
+      } catch (err) {
+        mostrarAviso(j.el.querySelector('#aviso-denuncia'), err.message, err.status === 409 ? 'info' : 'erro');
+      }
+    };
+  });
+}
+
+// ---------- Fotos: reduz a imagem no próprio aparelho antes de enviar (máx. 1280 px, JPEG) ----------
+function reduzirFoto(arquivo, ladoMaximo = 1280) {
+  return new Promise((resolve, reject) => {
+    if (!arquivo.type.startsWith('image/')) { reject(new Error('Escolha um arquivo de imagem.')); return; }
+    const leitor = new FileReader();
+    leitor.onerror = () => reject(new Error('Não foi possível ler a imagem.'));
+    leitor.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('Formato de imagem não suportado.'));
+      img.onload = () => {
+        const escala = Math.min(1, ladoMaximo / Math.max(img.width, img.height));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(img.width * escala);
+        canvas.height = Math.round(img.height * escala);
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', 0.82));
+      };
+      img.src = leitor.result;
+    };
+    leitor.readAsDataURL(arquivo);
+  });
+}
+
+// Mostra a foto ampliada
+function ampliarFoto(url) {
+  abrirJanela(`<img class="foto-ampliada" src="${esc(url)}" alt="Foto do ponto de recarga">
+    <div class="acoes"><button class="btn btn-primario" data-fechar type="button">Fechar</button></div>`);
 }

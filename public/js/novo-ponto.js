@@ -63,6 +63,33 @@ async function buscarLocal() {
 el('btn-buscar-local').onclick = buscarLocal;
 el('busca-local').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); buscarLocal(); } });
 
+// Fotos do local: reduzidas no aparelho e enviadas logo após o cadastro do ponto
+const fotosEscolhidas = [];
+function mostrarPrevia() {
+  el('previa-fotos').innerHTML = fotosEscolhidas.map((f, i) => `
+    <figure class="foto"><img src="${f}" alt="Foto ${i + 1}">
+      <button type="button" class="remover-previa" data-i="${i}" aria-label="Remover foto">×</button></figure>`).join('');
+}
+el('fotos-novo').onchange = async (e) => {
+  for (const arquivo of [...e.target.files].slice(0, 5 - fotosEscolhidas.length)) {
+    try { fotosEscolhidas.push(await reduzirFoto(arquivo)); } catch (err) { mostrarAviso(aviso, err.message); }
+  }
+  e.target.value = '';
+  mostrarPrevia();
+};
+el('previa-fotos').addEventListener('click', (e) => {
+  const b = e.target.closest('.remover-previa');
+  if (b) { fotosEscolhidas.splice(Number(b.dataset.i), 1); mostrarPrevia(); }
+});
+
+async function enviarFotos(pontoId) {
+  let falhas = 0;
+  for (const imagem of fotosEscolhidas) {
+    try { await api('POST', `/pontos/${pontoId}/fotos`, { imagem }); } catch { falhas += 1; }
+  }
+  return falhas;
+}
+
 // Envio do cadastro
 function dadosDoFormulario() {
   const pos = marcador?.getLatLng();
@@ -92,6 +119,8 @@ async function enviar(dados) {
   botao.textContent = 'Salvando…';
   try {
     const ponto = await api('POST', '/pontos', dados);
+    if (fotosEscolhidas.length) botao.textContent = 'Enviando fotos…';
+    await enviarFotos(ponto.id);
     location.href = `ponto.html?id=${ponto.id}&novo=1`;
   } catch (err) {
     botao.disabled = false;
