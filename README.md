@@ -3,7 +3,7 @@
 Projeto da disciplina **Prática Profissional em Análise e Desenvolvimento de Sistemas** (Universidade Presbiteriana Mackenzie).
 Autora: Dayane Nascimento de Toledo · Professor: Tomaz Mikio Sasaki
 
-**Versão 0.1 – Fase de Construção, Iteração 1 (C1)**
+**Versão 0.2 – Fase de Construção, Iteração 2 (C2) – em desenvolvimento**
 
 ## Funcionalidades desta versão
 

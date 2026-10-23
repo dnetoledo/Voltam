@@ -1,6 +1,6 @@
 {
   "name": "voltmap",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "VoltMap – Localizador de Pontos de Recarga para Veículos Elétricos",
   "main": "src/server.js",
   "scripts": {
