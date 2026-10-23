@@ -167,6 +167,7 @@ function exibir({ pontos, sugestao }, raio, ajustarMapa) {
         <span><strong>${formatarKm(p.distanciaKm)}</strong></span>
         <span>${esc(p.tiposConector.join(' · '))}</span>
         <span>${String(p.potenciaKw).replace('.', ',')} kW</span>
+        ${resumoNota(p)}
       </div>
     </a></li>`).join('');
 

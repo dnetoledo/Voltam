@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#16a34a">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="VoltMap">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>Painel administrativo – VoltMap</title>
+  <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body class="corpo-admin">
+  <!-- PainelDenuncias / TelaGestaoUsuarios – UC05 (Moderar Denúncias) e RF12 (Gerenciar Usuários) – protótipo da Figura 4 -->
+  <header class="topo topo-admin">
+    <a class="marca" href="index.html"><span class="raio">⚡</span>VoltMap</a>
+    <span class="subtitulo-admin">Painel Administrativo</span>
+    <div class="topo-acoes" id="topo-acoes"></div>
+  </header>
+  <div class="admin">
+    <nav class="menu-admin" aria-label="Seções do painel">
+      <a href="#denuncias" data-secao="denuncias">⚠ Denúncias <span class="contador" id="contador-denuncias"></span></a>
+      <a href="#usuarios" data-secao="usuarios">👤 Usuários</a>
+      <a href="#suspensos" data-secao="suspensos">🚫 Pontos suspensos</a>
+      <a href="#historico" data-secao="historico">🗂 Histórico</a>
+      <a href="index.html">🗺 Ver mapa</a>
+    </nav>
+    <main class="conteudo-admin">
+      <div class="aviso" id="aviso" role="alert"></div>
+
+      <!-- UC05 – Passos 1 a 4 -->
+      <section id="secao-denuncias" class="secao-admin">
+        <h1 id="titulo-denuncias">Denúncias pendentes</h1>
+        <p class="dica">Analise o conteúdo denunciado pela comunidade e escolha uma ação de moderação.</p>
+        <div class="moderacao">
+          <ul class="lista-denuncias" id="lista-denuncias"></ul>
+          <div class="cartao detalhe-denuncia" id="detalhe-denuncia"><p class="dica">Selecione uma denúncia para analisar.</p></div>
+        </div>
+      </section>
+
+      <!-- RF12 – Gerenciar usuários -->
+      <section id="secao-usuarios" class="secao-admin" hidden>
+        <h1>Usuários</h1>
+        <p class="dica">Bloqueie o acesso de quem viola as regras da comunidade. O bloqueio vale na hora.</p>
+        <form class="busca busca-usuarios" id="form-busca-usuarios">
+          <input id="busca-usuarios" type="search" placeholder="Buscar por nome ou e-mail">
+          <button class="btn btn-secundario" type="submit">Buscar</button>
+        </form>
+        <div class="tabela-rolagem"><table class="tabela">
+          <thead><tr><th>Nome</th><th>E-mail</th><th>Tipo</th><th>Pontos</th><th>Denúncias recebidas</th><th>Situação</th><th></th></tr></thead>
+          <tbody id="tabela-usuarios"></tbody>
+        </table></div>
+      </section>
+
+      <!-- UC05 – A2: pontos suspensos aguardando nova verificação -->
+      <section id="secao-suspensos" class="secao-admin" hidden>
+        <h1>Pontos suspensos</h1>
+        <p class="dica">Pontos suspensos não aparecem nas buscas. Depois de verificar o local, reative o ponto.</p>
+        <ul class="lista-simples cartao" id="lista-suspensos"></ul>
+      </section>
+
+      <section id="secao-historico" class="secao-admin" hidden>
+        <h1>Histórico de moderação</h1>
+        <ul class="lista-simples cartao" id="lista-historico"></ul>
+      </section>
+    </main>
+  </div>
+  <script src="js/api.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

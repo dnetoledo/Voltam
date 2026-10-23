@@ -1,4 +1,5 @@
-// TelaDetalhesPonto – RF05 (detalhes), UC04 (check-in e recarga ativa) e RF09 (favoritos)
+// TelaDetalhesPonto – RF05 (detalhes e fotos), UC04 (check-in e recarga ativa), RF08 (avaliações),
+// RF09 (favoritos) e RF10 (denúncias)
 montarTopo();
 const el = (id) => document.getElementById(id);
 const idPonto = new URLSearchParams(location.search).get('id');
@@ -12,6 +13,7 @@ function preencher(p) {
   el('nome').textContent = p.nome;
   el('endereco').textContent = p.endereco || '';
   el('status').innerHTML = seloStatus(p.status);
+  el('nota-topo').innerHTML = p.totalAvaliacoes ? `${resumoNota(p)} · ` : '';
   el('atualizacao').textContent = p.statusAtualizadoEm
     ? `Status informado por check-in ${tempoRelativo(p.statusAtualizadoEm)}` : 'Ainda sem check-in recente';
   el('conectores').textContent = p.tiposConector.join(' / ');
@@ -48,6 +50,8 @@ async function carregar() {
     }
     carregarRecarga();
     carregarHistorico();
+    carregarFotos();
+    carregarAvaliacoes();
   } catch (err) {
     mostrarAviso(el('aviso'), err.status === 404 ? 'Ponto de recarga não encontrado.' : err.message);
   }
@@ -162,5 +166,127 @@ async function carregarHistorico() {
       </li>`).join('') : '<li class="dica">Nenhum check-in ainda. Seja o primeiro!</li>';
   } catch { /* opcional */ }
 }
+
+// ---------- RF10 – Denunciar o ponto ----------
+el('denunciar-ponto').onclick = async () => {
+  const msg = await abrirDenuncia('PONTO', ponto.id);
+  if (msg) { mostrarAviso(el('aviso'), msg, 'ok'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+};
+
+// ---------- RF05 – Fotos do local ----------
+async function carregarFotos() {
+  el('secao-fotos').classList.remove('oculto');
+  if (logado) el('botao-foto').classList.remove('oculto');
+  try {
+    const fotos = await api('GET', `/pontos/${ponto.id}/fotos`);
+    el('galeria').innerHTML = fotos.length ? fotos.map((f) => `
+      <figure class="foto">
+        <button type="button" class="foto-abrir" data-url="${esc(f.url)}"><img src="${esc(f.url)}" alt="Foto do ponto enviada por ${esc(f.motorista || 'motorista')}" loading="lazy"></button>
+        <figcaption>${esc(f.motorista || '')} · ${tempoRelativo(f.dataEnvio)}
+          <button type="button" class="link-denuncia" data-denunciar-foto="${f.id}" title="Denunciar foto">⚑</button></figcaption>
+      </figure>`).join('')
+      : `<p class="dica">Ainda não há fotos deste ponto.${logado ? ' Envie a primeira!' : ''}</p>`;
+  } catch { /* opcional */ }
+}
+
+el('galeria').addEventListener('click', async (e) => {
+  const abrir = e.target.closest('.foto-abrir');
+  if (abrir) return ampliarFoto(abrir.dataset.url);
+  const den = e.target.closest('[data-denunciar-foto]');
+  if (den) {
+    const msg = await abrirDenuncia('FOTO', Number(den.dataset.denunciarFoto));
+    if (msg) mostrarAviso(el('aviso-fotos'), msg, 'ok');
+  }
+  return undefined;
+});
+
+el('arquivo-foto').onchange = async (e) => {
+  const arquivo = e.target.files[0];
+  e.target.value = '';
+  if (!arquivo) return;
+  const aviso = el('aviso-fotos');
+  mostrarAviso(aviso, 'Enviando foto…', 'info');
+  try {
+    const imagem = await reduzirFoto(arquivo);
+    await api('POST', `/pontos/${ponto.id}/fotos`, { imagem });
+    mostrarAviso(aviso, 'Foto enviada. Obrigado!', 'ok');
+    carregarFotos();
+  } catch (err) {
+    if (err.status === 401) { Sessao.sair(); exigirLogin(); return; }
+    mostrarAviso(aviso, err.message);
+  }
+};
+
+// ---------- RF08 – Avaliações ----------
+let notaEscolhida = 0;
+function marcarNota(n) {
+  notaEscolhida = n;
+  document.querySelectorAll('.escolha-estrelas button').forEach((b) => {
+    const v = Number(b.dataset.nota);
+    b.classList.toggle('ativa', v <= n);
+    b.setAttribute('aria-checked', String(v === n));
+  });
+}
+document.querySelectorAll('.escolha-estrelas button').forEach((b) => { b.onclick = () => marcarNota(Number(b.dataset.nota)); });
+
+async function carregarAvaliacoes() {
+  let minhaId = null;
+  el('secao-avaliacoes').classList.remove('oculto');
+  if (logado) {
+    el('form-avaliacao').classList.remove('oculto');
+    try {
+      const { avaliacao } = await api('GET', `/pontos/${ponto.id}/avaliacoes/minha`);
+      if (avaliacao) {
+        minhaId = avaliacao.id;
+        marcarNota(avaliacao.nota);
+        el('comentario-avaliacao').value = avaliacao.comentario || '';
+        el('titulo-avaliar').textContent = 'Sua avaliação (você pode alterar)';
+        el('enviar-avaliacao').textContent = 'Atualizar avaliação';
+      }
+    } catch { /* segue */ }
+  } else {
+    el('avaliar-login').classList.remove('oculto');
+    el('link-login-avaliar').href = `login.html?voltar=${encodeURIComponent(location.pathname + location.search)}`;
+  }
+  try {
+    const r = await api('GET', `/pontos/${ponto.id}/avaliacoes`);
+    el('media-avaliacoes').innerHTML = r.total
+      ? `<strong class="media-numero">${String(r.notaMedia).replace('.', ',')}</strong>${estrelas(r.notaMedia)}
+         <span class="dica">${r.total} avaliaç${r.total > 1 ? 'ões' : 'ão'}</span>`
+      : '<p class="dica">Este ponto ainda não foi avaliado.</p>';
+    el('avaliacoes').innerHTML = r.avaliacoes.map((a) => `
+      <li><span class="nota-mini">${estrelas(a.nota)}</span>
+        <div><strong>${esc(a.motorista || 'Motorista')}</strong> <span class="quando">${tempoRelativo(a.dataHora)}</span>
+        ${a.comentario ? `<p>${esc(a.comentario)}</p>` : ''}
+        ${logado && a.id !== minhaId ? `<button type="button" class="link-denuncia" data-denunciar-avaliacao="${a.id}">⚑ Denunciar</button>` : ''}</div>
+      </li>`).join('');
+  } catch { /* opcional */ }
+}
+
+el('avaliacoes').addEventListener('click', async (e) => {
+  const b = e.target.closest('[data-denunciar-avaliacao]');
+  if (!b) return;
+  const msg = await abrirDenuncia('AVALIACAO', Number(b.dataset.denunciarAvaliacao));
+  if (msg) mostrarAviso(el('aviso-avaliacao'), msg, 'ok');
+});
+
+el('form-avaliacao').onsubmit = async (e) => {
+  e.preventDefault();
+  const aviso = el('aviso-avaliacao');
+  esconderAviso(aviso);
+  if (!notaEscolhida) return mostrarAviso(aviso, 'Escolha de 1 a 5 estrelas.');
+  const botao = el('enviar-avaliacao');
+  botao.disabled = true;
+  try {
+    await api('POST', `/pontos/${ponto.id}/avaliacoes`, { nota: notaEscolhida, comentario: el('comentario-avaliacao').value.trim() });
+    mostrarAviso(aviso, 'Avaliação publicada. Obrigado!', 'ok');
+    preencher(await api('GET', `/pontos/${ponto.id}`));
+    carregarAvaliacoes();
+  } catch (err) {
+    if (err.status === 401) { Sessao.sair(); return exigirLogin(); }
+    mostrarAviso(aviso, err.message);
+  } finally { botao.disabled = false; }
+  return undefined;
+};
 
 carregar();

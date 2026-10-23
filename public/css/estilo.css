@@ -286,3 +286,117 @@ button, input, select { font: inherit; }
 .topico .duas img { max-height: 360px; margin: 0 auto; }
 .problemas dt { font-weight: 700; margin-top: 8px; }
 .problemas dd { margin: 2px 0 0; color: #374151; }
+
+/* ===================== Iteração C2 ===================== */
+.status-SUSPENSO { background: #ede9fe; color: #6d28d9; }
+.btn-perigo { background: var(--vermelho); color: #fff; }
+.btn-perigo:hover { background: #b91c1c; }
+.btn-alerta { background: var(--amarelo); color: #fff; }
+.btn-alerta:hover { background: #b45309; }
+.btn-contorno { background: var(--branco); color: var(--azul); border: 1.5px solid var(--azul); }
+.btn-pequeno { padding: 7px 12px; font-size: .85rem; }
+.btn-painel { padding: 6px 10px; font-size: .85rem; }
+textarea { font: inherit; width: 100%; padding: 12px 14px; border: 1px solid var(--borda); border-radius: 10px; resize: vertical; }
+.campo textarea:focus { outline: 2px solid var(--verde); outline-offset: -1px; border-color: transparent; }
+.contador { display: inline-block; min-width: 20px; padding: 1px 7px; border-radius: 999px; background: var(--vermelho);
+  color: #fff; font-size: .72rem; font-weight: 700; text-align: center; vertical-align: middle; }
+.contador:empty { display: none; }
+
+/* RF08 – estrelas */
+.estrelas { color: #f59e0b; letter-spacing: 1px; white-space: nowrap; }
+.estrelas .apagadas { color: #d1d5db; }
+.nota-resumo { color: #b45309; font-weight: 700; white-space: nowrap; }
+.nota-resumo small { color: var(--suave); font-weight: 500; }
+.media-avaliacoes { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.media-numero { font-size: 2rem; line-height: 1; }
+.media-avaliacoes .estrelas { font-size: 1.2rem; }
+.escolha-estrelas { display: flex; gap: 4px; margin: 4px 0 14px; }
+.escolha-estrelas button { border: 0; background: none; font-size: 2rem; line-height: 1; color: #d1d5db; cursor: pointer; padding: 2px; }
+.escolha-estrelas button.ativa { color: #f59e0b; }
+.escolha-estrelas button:focus-visible { outline: 2px solid var(--verde); border-radius: 6px; }
+.lista-avaliacoes { margin-top: 14px; }
+.nota-mini { font-size: .85rem; flex: none; padding-top: 2px; }
+
+/* RF10 – denunciar */
+.link-denuncia { border: 0; background: none; color: var(--suave); font-size: .82rem; cursor: pointer; padding: 4px 0; text-decoration: underline; }
+.link-denuncia:hover { color: var(--vermelho); }
+.cartao > .link-denuncia { display: block; margin: 12px auto 0; }
+
+/* RF05 – fotos */
+.secao-titulo { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.secao-titulo h2 { margin: 0; }
+.galeria { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-top: 12px; }
+.foto { margin: 0; position: relative; }
+.foto img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 10px; display: block; background: var(--fundo); }
+.foto-abrir { border: 0; padding: 0; background: none; cursor: zoom-in; width: 100%; }
+.foto figcaption { display: flex; justify-content: space-between; align-items: center; font-size: .78rem; color: var(--suave); margin-top: 4px; }
+.foto-ampliada { width: 100%; max-height: 70vh; object-fit: contain; border-radius: 10px; }
+.area-foto { display: block; border: 2px dashed var(--borda); border-radius: 10px; padding: 18px; text-align: center;
+  color: var(--suave); cursor: pointer; font-weight: 600; }
+.area-foto:hover { border-color: var(--verde); color: var(--verde-escuro); }
+.galeria-previa { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); }
+.remover-previa { position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; border-radius: 50%; border: 0;
+  background: rgba(0,0,0,.65); color: #fff; cursor: pointer; line-height: 1; }
+
+/* Notificações e atalho do administrador (Meu perfil) */
+.lista-notificacoes { list-style: none; margin: 0; padding: 0; }
+.lista-notificacoes li { display: flex; gap: 10px; padding: 10px 0; border-top: 1px solid var(--borda); }
+.lista-notificacoes li:first-child { border-top: 0; }
+.lista-notificacoes li.nova p { font-weight: 600; }
+.lista-notificacoes p { margin: 0 0 2px; }
+.atalho-admin { display: flex; align-items: center; gap: 14px; margin-top: 16px; text-decoration: none; color: var(--texto);
+  font-size: 1.6rem; border-left: 4px solid var(--azul); }
+.atalho-admin span { font-size: 1rem; }
+
+/* Painel administrativo – UC05 e RF12 (protótipo da Figura 4) */
+.topo-admin { background: var(--azul); border-bottom: 0; color: #fff; }
+.topo-admin .marca { color: #fff; }
+.topo-admin .topo-acoes .usuario-nome, .topo-admin .btn-link, .topo-admin .icone-link { color: #fff; }
+.topo-admin .icone-link { background: rgba(255,255,255,.15); }
+.topo-admin .btn-painel { display: none; }
+.subtitulo-admin { margin-right: auto; padding-left: 14px; border-left: 1px solid rgba(255,255,255,.35); opacity: .9; font-size: .92rem; }
+.admin { display: flex; min-height: calc(100% - 56px); }
+.menu-admin { width: 220px; flex: none; background: var(--branco); border-right: 1px solid var(--borda); padding: 16px 10px;
+  display: flex; flex-direction: column; gap: 4px; }
+.menu-admin a { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 10px; color: var(--texto);
+  text-decoration: none; font-weight: 600; font-size: .92rem; }
+.menu-admin a:hover { background: var(--fundo); }
+.menu-admin a.ativo { background: var(--verde-claro); color: var(--verde-escuro); }
+.menu-admin .contador { margin-left: auto; }
+.conteudo-admin { flex: 1; min-width: 0; padding: 24px; }
+.conteudo-admin h1 { margin: 0 0 4px; font-size: 1.4rem; }
+.moderacao { display: grid; grid-template-columns: minmax(260px, 380px) 1fr; gap: 20px; align-items: start; margin-top: 16px; }
+.lista-denuncias { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.item-denuncia { width: 100%; text-align: left; background: var(--branco); border: 1.5px solid var(--borda); border-radius: var(--raio);
+  padding: 12px 14px; cursor: pointer; display: grid; gap: 4px; font: inherit; color: inherit; }
+.item-denuncia:hover { border-color: #cbd5e1; }
+.item-denuncia.selecionada { border-color: var(--azul); box-shadow: 0 0 0 2px var(--azul-claro); }
+.denuncia-topo { display: flex; justify-content: space-between; gap: 8px; }
+.item-denuncia .motivo { color: #c2410c; }
+.item-denuncia .trecho { color: var(--suave); font-size: .88rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.item-denuncia .ponto-rel { color: var(--azul); font-weight: 700; font-size: .85rem; }
+.detalhe-denuncia h2 { margin: 0 0 12px; font-size: 1.1rem; }
+.conteudo-denunciado { margin: 0 0 16px; padding: 12px 14px; background: var(--fundo); border-radius: 10px; }
+.conteudo-denunciado footer { margin-top: 6px; font-size: .82rem; color: var(--suave); }
+.foto-denunciada { max-width: 100%; max-height: 320px; border-radius: 10px; margin-bottom: 16px; }
+.dados-denuncia { display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; margin: 0 0 18px; font-size: .92rem; }
+.dados-denuncia dt { color: var(--suave); }
+.dados-denuncia dd { margin: 0; text-align: right; font-weight: 600; }
+.acoes-moderacao { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; }
+.busca-usuarios { margin: 16px 0; max-width: 520px; }
+.tabela-rolagem { overflow-x: auto; background: var(--branco); border-radius: var(--raio); box-shadow: var(--sombra); }
+.tabela { width: 100%; border-collapse: collapse; font-size: .9rem; }
+.tabela th, .tabela td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--borda); white-space: nowrap; }
+.tabela th { font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; color: var(--suave); }
+.linha-suspenso { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 4px 0; }
+.linha-suspenso span { display: block; color: var(--suave); font-size: .85rem; }
+.conteudo-admin .lista-simples.cartao { padding: 8px 20px; margin-top: 16px; }
+
+@media (max-width: 800px) {
+  .admin { flex-direction: column; }
+  .menu-admin { width: auto; flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--borda); padding: 8px; }
+  .menu-admin a { white-space: nowrap; }
+  .moderacao { grid-template-columns: 1fr; }
+  .conteudo-admin { padding: 16px; }
+  .subtitulo-admin { display: none; }
+}
