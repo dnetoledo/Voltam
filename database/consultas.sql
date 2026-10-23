@@ -31,3 +31,40 @@ FROM usuario u
 LEFT JOIN ponto_de_recarga p ON p.motorista_id = u.id
 GROUP BY u.nome
 ORDER BY pontos_cadastrados DESC;
+
+-- ===================== Iteração C2 =====================
+
+-- 6. RF08 – nota média e total de avaliações por ponto (avaliações removidas não contam)
+SELECT p.nome, ROUND(AVG(a.nota), 1) AS nota_media, COUNT(a.id) AS avaliacoes
+FROM ponto_de_recarga p
+JOIN avaliacao a ON a.ponto_id = p.id AND NOT a.removida
+GROUP BY p.nome
+ORDER BY nota_media DESC;
+
+-- 7. RF10 / UC05 – denúncias por situação e decisão do administrador
+SELECT status, acao_tomada, conteudo_tipo, COUNT(*) AS quantidade
+FROM denuncia
+GROUP BY status, acao_tomada, conteudo_tipo
+ORDER BY status;
+
+-- 8. UC05 – fila de moderação: denúncias pendentes, mais antigas primeiro
+SELECT d.id, d.conteudo_tipo, d.conteudo_id, d.motivo, d.descricao, u.nome AS denunciante, d.data_hora
+FROM denuncia d JOIN usuario u ON u.id = d.denunciante_id
+WHERE d.status = 'PENDENTE'
+ORDER BY d.data_hora;
+
+-- 9. UC05 – A2: pontos suspensos (não aparecem nas buscas)
+SELECT id, nome, endereco, status_atualizado_em FROM ponto_de_recarga WHERE status = 'SUSPENSO';
+
+-- 10. Notificações enviadas aos autores de conteúdo removido
+SELECT u.nome, n.mensagem, n.lida, n.data_envio
+FROM notificacao n JOIN usuario u ON u.id = n.usuario_id
+ORDER BY n.data_envio DESC;
+
+-- 11. RF12 – usuários bloqueados
+SELECT nome, email, tipo FROM usuario WHERE status = 'BLOQUEADO';
+
+-- 12. Fotos por ponto (a imagem fica na coluna BYTEA "imagem")
+SELECT p.nome, COUNT(f.id) AS fotos, pg_size_pretty(SUM(octet_length(f.imagem))) AS tamanho
+FROM ponto_de_recarga p JOIN foto_ponto f ON f.ponto_id = p.id AND NOT f.removida
+GROUP BY p.nome;

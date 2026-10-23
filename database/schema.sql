@@ -1,5 +1,5 @@
 -- =====================================================================
--- VoltMap – Esquema do banco de dados (Iteração C1)
+-- VoltMap – Esquema do banco de dados (Iterações C1 e C2)
 -- Derivado do Modelo de Domínio (Seção 9 do Documento de Projeto)
 -- Usuario (abstrata) -> Motorista / Administrador: tabela única com "tipo"
 -- =====================================================================
@@ -82,3 +82,63 @@ CREATE TABLE IF NOT EXISTS forma_pagamento (
 ALTER TABLE check_in ADD COLUMN IF NOT EXISTS forma_pagamento VARCHAR(40);
 ALTER TABLE check_in ADD COLUMN IF NOT EXISTS energia_kwh    NUMERIC(8,2);
 ALTER TABLE check_in ADD COLUMN IF NOT EXISTS valor_estimado NUMERIC(10,2);
+
+-- =====================================================================
+-- Iteração C2: avaliações (RF08), fotos dos pontos (RF05), denúncias (RF10),
+-- moderação (RF11 / UC05), notificações e gestão de usuários (RF12)
+-- ConteudoModeravel (abstrata) -> PontoDeRecarga / Avaliacao / FotoPonto
+-- =====================================================================
+
+CREATE TABLE IF NOT EXISTS avaliacao (
+  id            SERIAL PRIMARY KEY,
+  ponto_id      INTEGER      NOT NULL REFERENCES ponto_de_recarga(id) ON DELETE CASCADE,
+  motorista_id  INTEGER      NOT NULL REFERENCES usuario(id) ON DELETE CASCADE,
+  nota          SMALLINT     NOT NULL CHECK (nota BETWEEN 1 AND 5),
+  comentario    VARCHAR(500),
+  data_hora     TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+  removida      BOOLEAN      NOT NULL DEFAULT FALSE,     -- remoção pela moderação (UC05 – A1)
+  UNIQUE (ponto_id, motorista_id)                         -- uma avaliação por motorista em cada ponto
+);
+CREATE INDEX IF NOT EXISTS idx_avaliacao_ponto ON avaliacao (ponto_id, data_hora DESC);
+
+CREATE TABLE IF NOT EXISTS foto_ponto (
+  id            SERIAL PRIMARY KEY,
+  ponto_id      INTEGER      NOT NULL REFERENCES ponto_de_recarga(id) ON DELETE CASCADE,
+  motorista_id  INTEGER      NOT NULL REFERENCES usuario(id) ON DELETE CASCADE,
+  tipo_mime     VARCHAR(20)  NOT NULL CHECK (tipo_mime IN ('image/jpeg', 'image/png', 'image/webp')),
+  imagem        BYTEA        NOT NULL,
+  data_envio    TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+  removida      BOOLEAN      NOT NULL DEFAULT FALSE
+);
+CREATE INDEX IF NOT EXISTS idx_foto_ponto ON foto_ponto (ponto_id, data_envio DESC);
+
+CREATE TABLE IF NOT EXISTS denuncia (
+  id                SERIAL PRIMARY KEY,
+  denunciante_id    INTEGER      NOT NULL REFERENCES usuario(id) ON DELETE CASCADE,
+  conteudo_tipo     VARCHAR(20)  NOT NULL CHECK (conteudo_tipo IN ('PONTO', 'AVALIACAO', 'FOTO')),
+  conteudo_id       INTEGER      NOT NULL,
+  motivo            VARCHAR(30)  NOT NULL
+                    CHECK (motivo IN ('INFORMACAO_INCORRETA', 'AVALIACAO_INADEQUADA', 'PONTO_INEXISTENTE',
+                                      'CONTEUDO_IMPROPRIO', 'OUTRO')),
+  descricao         VARCHAR(500),
+  status            VARCHAR(20)  NOT NULL DEFAULT 'PENDENTE'
+                    CHECK (status IN ('PENDENTE', 'RESOLVIDA', 'ARQUIVADA')),
+  acao_tomada       VARCHAR(30)  CHECK (acao_tomada IN ('REMOVER_CONTEUDO', 'SUSPENDER_PONTO', 'ARQUIVAR')),
+  administrador_id  INTEGER      REFERENCES usuario(id),
+  data_hora         TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+  resolvida_em      TIMESTAMPTZ
+);
+CREATE INDEX IF NOT EXISTS idx_denuncia_status ON denuncia (status, data_hora);
+-- o mesmo motorista não registra duas denúncias pendentes sobre o mesmo conteúdo
+CREATE UNIQUE INDEX IF NOT EXISTS uq_denuncia_pendente
+  ON denuncia (denunciante_id, conteudo_tipo, conteudo_id) WHERE status = 'PENDENTE';
+
+CREATE TABLE IF NOT EXISTS notificacao (
+  id          SERIAL PRIMARY KEY,
+  usuario_id  INTEGER      NOT NULL REFERENCES usuario(id) ON DELETE CASCADE,
+  tipo        VARCHAR(30)  NOT NULL,
+  mensagem    VARCHAR(500) NOT NULL,
+  lida        BOOLEAN      NOT NULL DEFAULT FALSE,
+  data_envio  TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_notificacao_usuario ON notificacao (usuario_id, data_envio DESC);
