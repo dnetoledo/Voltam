@@ -10,7 +10,7 @@ Os scripts devem ser executados em sequência (TST001 a TST020), num banco de te
 | [TST002](TST002.md) | Senha incorreta | UC01 | A1 | Mensagem de erro | Sucesso |
 | [TST003](TST003.md) | E-mail não cadastrado | UC01 | A1 | Mensagem de erro | Sucesso |
 | [TST004](TST004.md) | Conta bloqueada | UC01 | A2 | Mensagem de conta bloqueada | Sucesso |
-| [TST005](TST005.md) | Busca pela localização atual | UC02 | Fluxo principal | 12 pontos em 10 km | Falha |
+| [TST005](TST005.md) | Busca pela localização atual | UC02 | Fluxo principal | 12 pontos em 10 km | Sucesso |
 | [TST006](TST006.md) | Busca com raio de 5 km | UC02 | Fluxo principal | 8 pontos em 5 km | Sucesso |
 | [TST007](TST007.md) | Busca com filtros de conector e potência | UC02 | Fluxo principal | 2 pontos | Sucesso |
 | [TST008](TST008.md) | Nenhum ponto no raio | UC02 | A1 | Sugestão de aumentar o raio | Sucesso |
@@ -36,7 +36,7 @@ Os scripts devem ser executados em sequência (TST001 a TST020), num banco de te
 | [TST023](TST023.md) | Avaliação sem nota | RF08 | Dados obrigatórios inválidos (nota) | Sucesso |
 | [TST024](TST024.md) | Denúncia de avaliação | RF10 | Fluxo principal | Sucesso |
 | [TST025](TST025.md) | Denúncia repetida | RF10 | Exceção: denúncia repetida (Tabela 13) | Sucesso |
-| [TST026](TST026.md) | Denúncia do próprio conteúdo | RF10 | Exceção: denúncia do próprio conteúdo (Tabela 13) | Falha |
+| [TST026](TST026.md) | Própria avaliação sem opção de denúncia | RF10 | Regra: o motorista não denuncia a própria avaliação ou foto (Tabelas 13 e 16, revisão de 18/11/2026) | Sucesso |
 | [TST027](TST027.md) | Painel acessado por motorista | UC05 | Exceção: acesso de quem não é administrador (Tabela 13) | Sucesso |
 | [TST028](TST028.md) | Arquivar denúncia | UC05 | Fluxo principal, decisão "arquivar" | Sucesso |
 | [TST029](TST029.md) | Remover conteúdo denunciado | UC05 | Extensão A1 – Remover Conteúdo Denunciado (com Enviar Notificação) | Sucesso |
@@ -45,10 +45,18 @@ Os scripts devem ser executados em sequência (TST001 a TST020), num banco de te
 | [TST032](TST032.md) | Bloquear motorista | RF12 | Fluxo principal: bloquear (vale também para sessão já aberta) | Sucesso |
 | [TST033](TST033.md) | Desbloquear motorista | RF12 | Fluxo principal: desbloquear | Sucesso |
 | [TST034](TST034.md) | Administrador não pode ser bloqueado | RF12 | Exceção: bloquear a si mesmo ou outro administrador (Tabela 13) | Sucesso |
+| [TST035](TST035.md) | Autor denuncia o próprio ponto | RF10 | Regra: o autor pode denunciar o próprio ponto, por exemplo quando o local fechou (Tabela 16, revisão de 18/11/2026) | Sucesso |
 
 ### Execução (Aula 6)
 
-Data: 17/11/2026. Ambiente: Versão 0.2 (tag v2, commit fed80bb – o mesmo publicado em https://voltmap-u1iy.onrender.com), executada em servidor local com banco de teste recém-criado por npm run db:setup (PostgreSQL 16), navegador Google Chrome, localização fixada em -23.5646, -46.6527 pela emulação de geolocalização do navegador (equivalente à ferramenta Sensores).
+1ª execução: 17/11/2026 (TST001–TST034). Reexecução: 18/11/2026 (TST005 corrigido, TST026 reescrito, TST035 novo), em banco recém-criado. Ambiente: Versão 0.2 (tag v2, commit fed80bb – o mesmo publicado em https://voltmap-u1iy.onrender.com), executada em servidor local com banco de teste recém-criado por npm run db:setup (PostgreSQL 16), navegador Google Chrome, localização fixada em -23.5646, -46.6527 pela emulação de geolocalização do navegador (equivalente à ferramenta Sensores).
+
+### Histórico de falhas e correções
+
+| Script | Data | Resultado | O que aconteceu e como foi resolvido |
+| ------ | ---- | --------- | ------------------------------------ |
+| TST005 | 17/11/2026 | Falha | A tela mostrou o Hotel Jardins Carregador com "500 m", e o resultado esperado dizia "497 m". Investigação: a busca devolve a distância arredondada para centésimos de km (0,50 km), e a tela a exibe como 500 m; o erro estava no resultado esperado, que usou a distância exata. Correção: item (b) alterado para "500 m" em 18/11/2026. |
+| TST026 | 17/11/2026 | Falha | Versão anterior do script ("Denúncia do próprio conteúdo"): o motorista denunciou o ponto "Recarga Teste Sul Paulista", que ele mesmo cadastrou, e o sistema aceitou, contrariando a Tabela 13. Investigação: o código (Motorista.registrarDenuncia) permite de propósito que o autor denuncie o próprio ponto; como o app não tem edição nem exclusão de pontos, essa é a única forma de o autor avisar que o local fechou. Decisão do grupo em 18/11/2026: manter o comportamento e ajustar a especificação (Tabelas 13 e 16). O script foi reescrito para a regra que vale para avaliações e fotos, e o TST035 cobre a denúncia do próprio ponto. |
 
 O TST009 foi executado no app publicado, porque a busca por endereço depende do serviço Nominatim (OpenStreetMap), inacessível no ambiente local.
 
